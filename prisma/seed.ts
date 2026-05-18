@@ -3,6 +3,7 @@ config({ path: ".env.local" })
 
 import { PrismaClient } from "../lib/generated/prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
+import { hashPassword } from "better-auth/crypto"
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
 const prisma = new PrismaClient({ adapter })
@@ -532,37 +533,48 @@ async function main() {
   }
   console.log("✅ Coupons seeded")
 
+  // ── Helper: ensure user + credential account exist with hashed password ──────
+  async function upsertUserWithPassword(
+    email: string,
+    password: string,
+    name: string,
+    role: "admin" | "customer",
+  ) {
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: { name, role, emailVerified: true },
+      create: { email, name, role, emailVerified: true },
+    })
+    const existingAccount = await prisma.account.findFirst({
+      where: { userId: user.id, providerId: "credential" },
+    })
+    if (!existingAccount) {
+      const hashed = await hashPassword(password)
+      await prisma.account.create({
+        data: {
+          userId: user.id,
+          accountId: user.id,
+          providerId: "credential",
+          password: hashed,
+        },
+      })
+    }
+    return user
+  }
+
   // ── Admin User ───────────────────────────────────────────────────────────────
   const adminEmail = process.env.ADMIN_EMAIL
   const adminPassword = process.env.ADMIN_PASSWORD
 
   if (adminEmail && adminPassword) {
-    await prisma.user.upsert({
-      where: { email: adminEmail },
-      update: {},
-      create: {
-        email: adminEmail,
-        name: "Admin",
-        role: "admin",
-        emailVerified: true,
-      },
-    })
+    await upsertUserWithPassword(adminEmail, adminPassword, "Admin", "admin")
     console.log("✅ Admin user seeded:", adminEmail)
   } else {
     console.log("⚠️  ADMIN_EMAIL / ADMIN_PASSWORD not set — skipping admin user")
   }
 
   // ── Test Customer ────────────────────────────────────────────────────────────
-  await prisma.user.upsert({
-    where: { email: "customer@test.com" },
-    update: {},
-    create: {
-      email: "customer@test.com",
-      name: "Test Customer",
-      role: "customer",
-      emailVerified: true,
-    },
-  })
+  await upsertUserWithPassword("customer@test.com", "testpassword123", "Test Customer", "customer")
   console.log("✅ Test customer seeded")
 
   const productCount = await prisma.product.count()

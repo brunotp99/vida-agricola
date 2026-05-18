@@ -1,9 +1,10 @@
-'use client'
+"use client"
 
-import { useState, useRef } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { AnimatePresence } from 'framer-motion'
+import { useState, useRef } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { AnimatePresence } from "framer-motion"
 import {
   Search,
   User,
@@ -13,44 +14,70 @@ import {
   Phone,
   MapPin,
   Truck,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
-import { MegaMenu } from './mega-menu'
-import { MobileMenu } from './mobile-menu'
+  LogOut,
+  Settings,
+  Package,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { MegaMenu } from "./mega-menu"
+import { MobileMenu } from "./mobile-menu"
+import { authClient } from "@/lib/auth-client"
 
 const mainNavItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Products', href: '/products', hasMegaMenu: true },
-  { label: 'Brands', href: '/brands' },
-  { label: 'Deals', href: '/deals', highlight: true },
-  { label: 'Blog', href: '/blog' },
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
+  { label: "Home", href: "/" },
+  { label: "Products", href: "/products", hasMegaMenu: true },
+  { label: "Brands", href: "/brands" },
+  { label: "Deals", href: "/deals", highlight: true },
+  { label: "Blog", href: "/blog" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ]
 
 export function Header() {
-  const [searchQuery, setSearchQuery] = useState('')
+  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState("")
   const [megaMenuOpen, setMegaMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const { data: session, isPending } = authClient.useSession()
 
-  const cartItemCount = 3
-  const wishlistCount = 5
+  const cartItemCount = 0
+  const wishlistCount = 0
 
   const handleMouseEnter = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
     setMegaMenuOpen(true)
   }
 
   const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setMegaMenuOpen(false)
-    }, 150)
+    timeoutRef.current = setTimeout(() => setMegaMenuOpen(false), 150)
+  }
+
+  async function handleSignOut() {
+    await authClient.signOut()
+    router.push("/")
+    router.refresh()
+  }
+
+  function getInitials(name?: string | null): string {
+    if (!name) return "U"
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
   }
 
   return (
@@ -60,11 +87,17 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-2 text-sm">
             <div className="hidden items-center gap-6 md:flex">
-              <a href="tel:+18001234567" className="flex items-center gap-2 transition-colors hover:text-primary">
+              <a
+                href="tel:+18001234567"
+                className="flex items-center gap-2 transition-colors hover:text-primary"
+              >
                 <Phone className="h-3.5 w-3.5" />
                 <span>+1 (800) 123-4567</span>
               </a>
-              <Link href="/stores" className="flex items-center gap-2 transition-colors hover:text-primary">
+              <Link
+                href="/stores"
+                className="flex items-center gap-2 transition-colors hover:text-primary"
+              >
                 <MapPin className="h-3.5 w-3.5" />
                 <span>Find a Store</span>
               </Link>
@@ -133,12 +166,67 @@ export function Header() {
               </Button>
 
               {/* Account */}
-              <Link href="/account">
-                <Button variant="ghost" size="icon" className="hidden sm:flex">
-                  <User className="h-5 w-5" />
-                  <span className="sr-only">Account</span>
-                </Button>
-              </Link>
+              {!isPending && (
+                <>
+                  {session ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="hidden sm:flex">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage
+                              src={session.user.image ?? undefined}
+                              alt={session.user.name ?? "User"}
+                            />
+                            <AvatarFallback className="text-xs">
+                              {getInitials(session.user.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <div className="px-2 py-1.5">
+                          <p className="text-sm font-medium">{session.user.name}</p>
+                          <p className="text-xs text-muted-foreground">{session.user.email}</p>
+                        </div>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link href="/account" className="flex items-center gap-2">
+                            <User className="h-4 w-4" />
+                            My Account
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/account/orders" className="flex items-center gap-2">
+                            <Package className="h-4 w-4" />
+                            Orders
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/account" className="flex items-center gap-2">
+                            <Settings className="h-4 w-4" />
+                            Settings
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={handleSignOut}
+                          className="flex items-center gap-2 text-destructive focus:text-destructive"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Sign Out
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <Link href="/login" className="hidden sm:block">
+                      <Button variant="ghost" size="sm" className="gap-2">
+                        <User className="h-4 w-4" />
+                        Sign In
+                      </Button>
+                    </Link>
+                  )}
+                </>
+              )}
 
               {/* Wishlist */}
               <Link href="/wishlist" className="relative hidden sm:block">
@@ -172,28 +260,22 @@ export function Header() {
 
       {/* Main Navigation */}
       <nav className="hidden border-b border-border/50 bg-card lg:block">
-        <div 
-          className="container relative mx-auto px-4"
-          onMouseLeave={handleMouseLeave}
-        >
+        <div className="container relative mx-auto px-4" onMouseLeave={handleMouseLeave}>
           <ul className="flex items-center">
             {mainNavItems.map((item) => (
-              <li
-                key={item.label}
-                onMouseEnter={item.hasMegaMenu ? handleMouseEnter : undefined}
-              >
+              <li key={item.label} onMouseEnter={item.hasMegaMenu ? handleMouseEnter : undefined}>
                 <Link
                   href={item.href}
                   className={`relative flex items-center gap-1.5 px-5 py-4 text-sm font-medium transition-colors ${
                     item.highlight
-                      ? 'text-secondary hover:text-secondary/80'
-                      : 'text-foreground hover:text-primary'
+                      ? "text-secondary hover:text-secondary/80"
+                      : "text-foreground hover:text-primary"
                   }`}
                 >
                   {item.label}
                   {item.hasMegaMenu && (
                     <svg
-                      className={`h-3.5 w-3.5 transition-transform duration-200 ${megaMenuOpen ? 'rotate-180' : ''}`}
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${megaMenuOpen ? "rotate-180" : ""}`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -202,14 +284,12 @@ export function Header() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   )}
-                  {/* Active indicator */}
                   <span className="absolute bottom-0 left-5 right-5 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-200 group-hover:scale-x-100" />
                 </Link>
               </li>
             ))}
           </ul>
 
-          {/* Mega Menu - Positioned relative to container */}
           <AnimatePresence>
             {megaMenuOpen && (
               <div onMouseEnter={handleMouseEnter}>
