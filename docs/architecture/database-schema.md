@@ -1,0 +1,516 @@
+# Database Schema
+
+Full Prisma schema for the Vida Agrícola platform. Implement this in `prisma/schema.prisma`.
+
+## Enums
+
+```prisma
+enum Role {
+  admin
+  staff
+  customer
+}
+
+enum ProductStatus {
+  draft
+  active
+  archived
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  processing
+  shipped
+  delivered
+  cancelled
+  refunded
+}
+
+enum CouponType {
+  percentage
+  fixed
+}
+
+enum BlogStatus {
+  draft
+  published
+  archived
+}
+```
+
+---
+
+## Users & Auth
+
+```prisma
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  role          Role      @default(customer)
+  emailVerified Boolean   @default(false)
+  banned        Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  addresses     Address[]
+  wishlist      WishlistItem[]
+  reviews       Review[]
+  cart          Cart?
+  blogPosts     BlogPost[]
+  couponUsages  CouponUsage[]
+
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  type      String   // "email-verification" | "password-reset"
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([email])
+}
+```
+
+---
+
+## Catalog
+
+```prisma
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  imageUrl    String?
+  icon        String?
+  featured    Boolean    @default(false)
+  sortOrder   Int        @default(0)
+  parentId    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  parent      Category?  @relation("Subcategories", fields: [parentId], references: [id])
+  children    Category[] @relation("Subcategories")
+  products    Product[]
+
+  @@index([slug])
+  @@index([parentId])
+}
+
+model Brand {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  logoUrl     String?
+  description String?
+  featured    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  products    Product[]
+
+  @@index([slug])
+}
+
+model Product {
+  id             String        @id @default(cuid())
+  name           String
+  slug           String        @unique
+  description    String?
+  sku            String        @unique
+  price          Decimal       @db.Decimal(10, 2)
+  compareAtPrice Decimal?      @db.Decimal(10, 2)
+  categoryId     String?
+  brandId        String?
+  status         ProductStatus @default(draft)
+  featured       Boolean       @default(false)
+  newArrival     Boolean       @default(false)
+  bestSeller     Boolean       @default(false)
+  flashDeal      Boolean       @default(false)
+  weight         Decimal?      @db.Decimal(8, 3)
+  searchVector   Unsupported("tsvector")?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  category       Category?       @relation(fields: [categoryId], references: [id])
+  brand          Brand?          @relation(fields: [brandId], references: [id])
+  images         ProductImage[]
+  variants       ProductVariant[]
+  tags           ProductTag[]
+  specifications Specification[]
+  cartItems      CartItem[]
+  wishlistItems  WishlistItem[]
+  orderItems     OrderItem[]
+  reviews        Review[]
+  inventoryLogs  InventoryLog[]
+
+  @@index([slug])
+  @@index([categoryId, status])
+  @@index([brandId])
+  @@index([status, featured])
+  @@index([status, bestSeller])
+  @@index([status, newArrival])
+  @@index([status, flashDeal])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductVariant {
+  id         String   @id @default(cuid())
+  productId  String
+  name       String
+  sku        String   @unique
+  price      Decimal? @db.Decimal(10, 2)
+  stockCount Int      @default(0)
+  attributes Json     @default("{}")
+  createdAt  DateTime @default(now())
+
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([productId])
+}
+
+model ProductTag {
+  id        String @id @default(cuid())
+  productId String
+  tag       String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, tag])
+  @@index([tag])
+}
+
+model Specification {
+  id        String @id @default(cuid())
+  productId String
+  key       String
+  value     String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+```
+
+---
+
+## Shopping
+
+```prisma
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?    @unique
+  sessionId String?    @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  productId String
+  variantId String?
+  quantity  Int     @default(1)
+
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product        @relation(fields: [productId], references: [id])
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@unique([cartId, productId, variantId])
+  @@index([cartId])
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  addedAt   DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+}
+
+model Coupon {
+  id             String     @id @default(cuid())
+  code           String     @unique
+  type           CouponType
+  value          Decimal    @db.Decimal(10, 2)
+  minOrderAmount Decimal?   @db.Decimal(10, 2)
+  maxUses        Int?
+  usedCount      Int        @default(0)
+  expiresAt      DateTime?
+  active         Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+
+  usages CouponUsage[]
+
+  @@index([code])
+}
+
+model CouponUsage {
+  id       String   @id @default(cuid())
+  couponId String
+  userId   String
+  orderId  String
+  usedAt   DateTime @default(now())
+
+  coupon Coupon @relation(fields: [couponId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([couponId, userId, orderId])
+}
+```
+
+---
+
+## Orders
+
+```prisma
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  name       String
+  line1      String
+  line2      String?
+  city       String
+  state      String?
+  postalCode String
+  country    String   @default("PT")
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@index([userId])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  userId          String
+  status          OrderStatus @default(pending)
+  subtotal        Decimal     @db.Decimal(10, 2)
+  shippingAmount  Decimal     @db.Decimal(10, 2)
+  taxAmount       Decimal     @db.Decimal(10, 2)
+  discountAmount  Decimal     @default(0) @db.Decimal(10, 2)
+  total           Decimal     @db.Decimal(10, 2)
+  paymentIntentId String?     @unique
+  shippingAddress Json
+  addressId       String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user    User        @relation(fields: [userId], references: [id])
+  address Address?    @relation(fields: [addressId], references: [id])
+  items   OrderItem[]
+
+  @@index([userId, status])
+  @@index([orderNumber])
+  @@index([paymentIntentId])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  variantId String?
+  name      String
+  sku       String
+  price     Decimal @db.Decimal(10, 2)
+  quantity  Int
+  imageUrl  String?
+
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@index([orderId])
+}
+```
+
+---
+
+## Reviews
+
+```prisma
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  rating    Int      // 1–5
+  title     String?
+  body      String?
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, userId])
+  @@index([productId])
+}
+```
+
+---
+
+## Content & CMS
+
+```prisma
+model BlogPost {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  body        String
+  excerpt     String?
+  imageUrl    String?
+  authorId    String
+  status      BlogStatus @default(draft)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  author BlogTag[]
+
+  @@index([slug])
+  @@index([status, publishedAt])
+}
+
+model BlogTag {
+  id     String @id @default(cuid())
+  postId String
+  tag    String
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, tag])
+}
+
+model NewsletterSub {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  active       Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+
+  @@index([email])
+}
+```
+
+---
+
+## Inventory & Analytics
+
+```prisma
+model InventoryLog {
+  id        String   @id @default(cuid())
+  productId String
+  variantId String?
+  delta     Int      // positive = stock added, negative = stock removed
+  reason    String   // "sale" | "restock" | "adjustment" | "return"
+  orderId   String?
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  type      String   // "product_view" | "add_to_cart" | "checkout_start" | "purchase"
+  userId    String?
+  sessionId String?
+  productId String?
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([productId])
+  @@index([userId])
+}
+```
+
+---
+
+## Full-Text Search Index
+
+Add this via a raw SQL migration after the initial schema migration:
+
+```sql
+-- Add generated tsvector column
+ALTER TABLE "Product"
+  ADD COLUMN IF NOT EXISTS "searchVector" tsvector
+  GENERATED ALWAYS AS (
+    to_tsvector('portuguese',
+      coalesce(name, '') || ' ' ||
+      coalesce(description, '')
+    )
+  ) STORED;
+
+-- Add GIN index for fast full-text queries
+CREATE INDEX IF NOT EXISTS "Product_searchVector_idx"
+  ON "Product" USING GIN ("searchVector");
+```

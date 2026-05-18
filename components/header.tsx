@@ -1,0 +1,224 @@
+'use client'
+
+import { useState, useRef } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { AnimatePresence } from 'framer-motion'
+import {
+  Search,
+  User,
+  Heart,
+  ShoppingCart,
+  Menu,
+  Phone,
+  MapPin,
+  Truck,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
+import { MegaMenu } from './mega-menu'
+import { MobileMenu } from './mobile-menu'
+
+const mainNavItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Products', href: '/products', hasMegaMenu: true },
+  { label: 'Brands', href: '/brands' },
+  { label: 'Deals', href: '/deals', highlight: true },
+  { label: 'Blog', href: '/blog' },
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+]
+
+export function Header() {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const cartItemCount = 3
+  const wishlistCount = 5
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    setMegaMenuOpen(true)
+  }
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setMegaMenuOpen(false)
+    }, 150)
+  }
+
+  return (
+    <header className="sticky top-0 z-50 w-full bg-card">
+      {/* Top Bar */}
+      <div className="bg-accent text-accent-foreground">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between py-2 text-sm">
+            <div className="hidden items-center gap-6 md:flex">
+              <a href="tel:+18001234567" className="flex items-center gap-2 transition-colors hover:text-primary">
+                <Phone className="h-3.5 w-3.5" />
+                <span>+1 (800) 123-4567</span>
+              </a>
+              <Link href="/stores" className="flex items-center gap-2 transition-colors hover:text-primary">
+                <MapPin className="h-3.5 w-3.5" />
+                <span>Find a Store</span>
+              </Link>
+            </div>
+            <div className="flex w-full items-center justify-center gap-2 md:w-auto md:justify-end">
+              <Truck className="h-3.5 w-3.5" />
+              <span>Free shipping on orders over $99</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Header */}
+      <div className="border-b border-border/50 bg-card">
+        <div className="container mx-auto px-4">
+          <div className="flex h-20 items-center justify-between gap-6">
+            {/* Mobile Menu Button */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="lg:hidden">
+                <Button variant="ghost" size="icon" className="shrink-0">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[320px] p-0">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <MobileMenu onClose={() => setMobileMenuOpen(false)} />
+              </SheetContent>
+            </Sheet>
+
+            {/* Logo */}
+            <Link href="/" className="flex shrink-0 items-center gap-3">
+              <Image
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-GpwpwSRanjgVXt8ByFMWwyHcFTNx7O.png"
+                alt="Vida Agrícola"
+                width={36}
+                height={36}
+                className="h-9 w-auto"
+                priority
+              />
+              <span className="hidden text-xl font-bold tracking-tight text-foreground sm:block">
+                Vida Agrícola
+              </span>
+            </Link>
+
+            {/* Search Bar */}
+            <div className="hidden flex-1 max-w-xl lg:block">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search products, brands..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-11 w-full rounded-full border-2 border-muted bg-muted/30 pl-11 pr-4 text-sm transition-all focus:border-primary focus:bg-background"
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-1">
+              {/* Mobile Search */}
+              <Button variant="ghost" size="icon" className="lg:hidden">
+                <Search className="h-5 w-5" />
+                <span className="sr-only">Search</span>
+              </Button>
+
+              {/* Account */}
+              <Link href="/account">
+                <Button variant="ghost" size="icon" className="hidden sm:flex">
+                  <User className="h-5 w-5" />
+                  <span className="sr-only">Account</span>
+                </Button>
+              </Link>
+
+              {/* Wishlist */}
+              <Link href="/wishlist" className="relative hidden sm:block">
+                <Button variant="ghost" size="icon">
+                  <Heart className="h-5 w-5" />
+                  <span className="sr-only">Wishlist</span>
+                </Button>
+                {wishlistCount > 0 && (
+                  <Badge className="absolute -right-0.5 -top-0.5 h-5 w-5 rounded-full bg-secondary p-0 text-[10px] font-semibold text-secondary-foreground">
+                    {wishlistCount}
+                  </Badge>
+                )}
+              </Link>
+
+              {/* Cart */}
+              <Link href="/cart" className="relative">
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="sr-only">Cart</span>
+                </Button>
+                {cartItemCount > 0 && (
+                  <Badge className="absolute -right-0.5 -top-0.5 h-5 w-5 rounded-full bg-primary p-0 text-[10px] font-semibold text-primary-foreground">
+                    {cartItemCount}
+                  </Badge>
+                )}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Navigation */}
+      <nav className="hidden border-b border-border/50 bg-card lg:block">
+        <div 
+          className="container relative mx-auto px-4"
+          onMouseLeave={handleMouseLeave}
+        >
+          <ul className="flex items-center">
+            {mainNavItems.map((item) => (
+              <li
+                key={item.label}
+                onMouseEnter={item.hasMegaMenu ? handleMouseEnter : undefined}
+              >
+                <Link
+                  href={item.href}
+                  className={`relative flex items-center gap-1.5 px-5 py-4 text-sm font-medium transition-colors ${
+                    item.highlight
+                      ? 'text-secondary hover:text-secondary/80'
+                      : 'text-foreground hover:text-primary'
+                  }`}
+                >
+                  {item.label}
+                  {item.hasMegaMenu && (
+                    <svg
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${megaMenuOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  )}
+                  {/* Active indicator */}
+                  <span className="absolute bottom-0 left-5 right-5 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-200 group-hover:scale-x-100" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {/* Mega Menu - Positioned relative to container */}
+          <AnimatePresence>
+            {megaMenuOpen && (
+              <div onMouseEnter={handleMouseEnter}>
+                <MegaMenu />
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
+      </nav>
+    </header>
+  )
+}

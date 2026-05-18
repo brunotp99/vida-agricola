@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/brunotp99/Downloads/agriculture-ecommerce-app/.claude/hooks/post-task-checks.sh",
+            "timeout": 120,
+            "statusMessage": "Running TypeScript + lint checks…",
+            "asyncRewake": true,
+            "rewakeMessage": "Post-task checks failed — fix the errors above before continuing."
+          }
+        ]
+      }
+    ]
+  }
+}

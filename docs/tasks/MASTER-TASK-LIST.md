@@ -1,0 +1,86 @@
+# Master Task List
+
+Status values: `TODO` · `IN PROGRESS` · `DONE` · `BLOCKED`
+
+| # | Phase | Task | Key Files | Depends On | Status |
+|---|-------|------|-----------|------------|--------|
+| 1 | Foundation | Rename project and configure metadata | `package.json`, `app/layout.tsx` | — | TODO |
+| 2 | Foundation | Fix TypeScript strictness + resolve all TS errors | `next.config.mjs`, `components/mega-menu.tsx` | 1 | TODO |
+| 3 | Foundation | Add ESLint + Prettier + Husky pre-commit | `.eslintrc.json`, `.prettierrc`, `.husky/pre-commit` | 1 | TODO |
+| 4 | Foundation | Add env variable validation | `lib/env.ts`, `.env.example` | 1 | TODO |
+| 5 | Foundation | Docker Compose for local PostgreSQL | `docker-compose.yml`, `.env.example` | 4 | TODO |
+| 6 | Foundation | Install and configure Prisma | `prisma/schema.prisma`, `lib/prisma.ts` | 5 | TODO |
+| 7 | Foundation | Prisma schema — Users & Auth models | `prisma/schema.prisma` | 6 | TODO |
+| 8 | Foundation | Prisma schema — Catalog models (Product, Category, Brand) | `prisma/schema.prisma` | 7 | TODO |
+| 9 | Foundation | Prisma schema — Commerce models (Cart, Order, Coupon, Address) | `prisma/schema.prisma` | 8 | TODO |
+| 10 | Foundation | Prisma schema — CMS & Analytics models | `prisma/schema.prisma` | 9 | TODO |
+| 11 | Foundation | Full-text search tsvector migration | `prisma/migrations/*/migration.sql` | 8 | TODO |
+| 12 | Foundation | Create database seed script | `prisma/seed.ts`, `package.json` | 9 | TODO |
+| 13 | Foundation | Create Zod validation schemas | `lib/validations/*.ts` | 6 | TODO |
+| 14 | Foundation | Set up Vitest for unit testing | `vitest.config.ts`, `tests/unit/` | 13 | TODO |
+| 15 | Foundation | Update CLAUDE.md with new commands and structure | `CLAUDE.md` | 12 | TODO |
+| 16 | Auth | Install and configure Better Auth | `lib/auth.ts`, `app/api/auth/[...all]/route.ts` | 7 | TODO |
+| 17 | Auth | Add Google and GitHub OAuth providers | `lib/auth.ts`, `.env.example` | 16 | TODO |
+| 18 | Auth | Implement Next.js middleware for route protection | `middleware.ts` | 16 | TODO |
+| 19 | Auth | Build Login page | `app/(auth)/login/page.tsx`, `components/auth/login-form.tsx` | 13, 16 | TODO |
+| 20 | Auth | Build Register page | `app/(auth)/register/page.tsx`, `components/auth/register-form.tsx` | 13, 16 | TODO |
+| 21 | Auth | Build Forgot/Reset Password pages | `app/(auth)/forgot-password/page.tsx`, `app/(auth)/reset-password/page.tsx` | 16 | TODO |
+| 22 | Auth | Update Header with real auth session state | `components/header.tsx` | 16 | TODO |
+| 23 | Auth | Build auth server actions (sign-out, update profile, change password) | `lib/actions/users.ts` | 16, 13 | TODO |
+| 24 | Auth | Seed admin user from env vars | `prisma/seed.ts` | 12, 16 | TODO |
+| 25 | DB Services | Create ProductService | `lib/services/product.service.ts` | 8 | TODO |
+| 26 | DB Services | Create CategoryService | `lib/services/category.service.ts` | 8 | TODO |
+| 27 | DB Services | Create BrandService | `lib/services/brand.service.ts` | 8 | TODO |
+| 28 | DB Services | Convert homepage to use services | `app/page.tsx`, `components/product-sections.tsx`, `components/categories-grid.tsx` | 25, 26 | TODO |
+| 29 | DB Services | Convert product detail page to use ProductService | `app/product/[slug]/page.tsx` | 25 | TODO |
+| 30 | DB Services | Convert category page to use services + URL-based filters | `app/category/[slug]/page.tsx`, `components/product-filters.tsx` | 25, 26 | TODO |
+| 31 | DB Services | Create CartService | `lib/services/cart.service.ts` | 9 | TODO |
+| 32 | DB Services | Build cart server actions + persistent cart page | `lib/actions/cart.ts`, `app/cart/page.tsx` | 31 | TODO |
+| 33 | DB Services | Create WishlistService | `lib/services/wishlist.service.ts` | 9 | TODO |
+| 34 | DB Services | Build wishlist server actions and wishlist page | `lib/actions/wishlist.ts`, `app/wishlist/page.tsx` | 33 | TODO |
+| 35 | DB Services | Create OrderService | `lib/services/order.service.ts` | 9 | TODO |
+| 36 | DB Services | Update account orders page with real data | `app/account/page.tsx`, `app/account/orders/[id]/page.tsx` | 35 | TODO |
+| 37 | DB Services | Create SearchService (full-text + autocomplete) | `lib/services/search.service.ts` | 11 | TODO |
+| 38 | DB Services | Create InventoryService (atomic stock reservation) | `lib/services/inventory.service.ts` | 9 | TODO |
+| 39 | DB Services | Create EmailService (Resend transactional emails) | `lib/services/email.service.ts` | — | TODO |
+| 40 | DB Services | Create ReviewService | `lib/services/review.service.ts` | 9 | TODO |
+| 41 | Checkout | Install Stripe SDK + create lib/stripe.ts | `lib/stripe.ts`, `.env.example` | — | TODO |
+| 42 | Checkout | Create Payment Intent server action | `lib/actions/checkout.ts` | 31, 38, 41 | TODO |
+| 43 | Checkout | Rebuild checkout page with Stripe Elements | `app/checkout/page.tsx`, `components/checkout/*` | 35, 42 | TODO |
+| 44 | Checkout | Implement Stripe webhook handler | `app/api/webhooks/stripe/route.ts` | 35, 38, 39 | TODO |
+| 45 | Checkout | Build Order Confirmation page | `app/order-confirmation/page.tsx` | 35 | TODO |
+| 46 | Checkout | Implement coupon validation server action | `lib/actions/cart.ts` | 9, 32 | TODO |
+| 47 | Checkout | Build address management server actions | `lib/actions/users.ts` | 9 | TODO |
+| 48 | Checkout | Create ShippingService | `lib/services/shipping.service.ts` | — | TODO |
+| 49 | Checkout | Add cart merge on login (guest → user) | `lib/auth.ts`, `lib/services/cart.service.ts` | 16, 31 | TODO |
+| 50 | Checkout | Write integration tests for checkout flow | `tests/integration/checkout.test.ts` | 42, 44 | TODO |
+| 51 | Frontend | Build Search page | `app/search/page.tsx` | 37 | TODO |
+| 52 | Frontend | Build autocomplete API route + dropdown in header | `app/api/search/autocomplete/route.ts`, `components/search/autocomplete-dropdown.tsx` | 37 | TODO |
+| 53 | Frontend | Build Brands listing and Brand detail pages | `app/brands/page.tsx`, `app/brand/[slug]/page.tsx` | 27 | TODO |
+| 54 | Frontend | Build Deals page | `app/deals/page.tsx` | 25 | TODO |
+| 55 | Frontend | Build Blog listing and post pages | `app/blog/page.tsx`, `app/blog/[slug]/page.tsx` | 10 | TODO |
+| 56 | Frontend | Update Account page to use real session and service data | `app/account/page.tsx` | 22, 35, 33 | TODO |
+| 57 | Frontend | Implement product reviews on product detail page | `components/product-detail.tsx`, `lib/actions/reviews.ts` | 40 | TODO |
+| 58 | Frontend | Wire ProductCard add-to-cart and wishlist to server actions | `components/product-card.tsx` | 32, 34 | TODO |
+| 59 | Frontend | Build Wishlist page | `app/wishlist/page.tsx` | 33 | TODO |
+| 60 | Frontend | Add pagination to category and search pages | `lib/services/product.service.ts`, `app/category/[slug]/page.tsx` | 25, 30, 51 | TODO |
+| 61 | Frontend | Implement newsletter subscription | `lib/actions/newsletter.ts`, `components/footer.tsx` | 10 | TODO |
+| 62 | Frontend | Remove all lib/data.ts static data imports | All remaining files importing lib/data.ts | 25–60 | TODO |
+| 63 | Admin | Build Admin layout and navigation sidebar | `app/admin/layout.tsx` | 18 | TODO |
+| 64 | Admin | Build Admin Dashboard overview page | `app/admin/page.tsx`, `components/admin/stats-card.tsx`, `components/admin/revenue-chart.tsx` | 35, 25 | TODO |
+| 65 | Admin | Build Admin Products data table | `app/admin/products/page.tsx`, `components/admin/data-table.tsx` | 25 | TODO |
+| 66 | Admin | Build Admin Product Create and Edit forms | `app/admin/products/new/page.tsx`, `components/admin/product-form.tsx`, `lib/actions/admin/products.ts` | 25, 26, 27 | TODO |
+| 67 | Admin | Build Admin Categories CRUD | `app/admin/categories/page.tsx`, `lib/actions/admin/categories.ts` | 26 | TODO |
+| 68 | Admin | Build Admin Orders management | `app/admin/orders/page.tsx`, `app/admin/orders/[id]/page.tsx`, `lib/actions/admin/orders.ts` | 35, 41 | TODO |
+| 69 | Admin | Build Admin Users management | `app/admin/users/page.tsx`, `lib/actions/admin/users.ts` | 16 | TODO |
+| 70 | Admin | Build Admin Inventory management | `app/admin/inventory/page.tsx`, `lib/actions/admin/inventory.ts` | 38 | TODO |
+| 71 | Admin | Build Admin Coupons management | `app/admin/coupons/page.tsx`, `lib/actions/admin/coupons.ts` | 9 | TODO |
+| 72 | Admin | Build Admin Analytics page | `app/admin/analytics/page.tsx` | 10, 35 | TODO |
+| 73 | Polish | Write unit tests for all service layer functions | `tests/unit/services/*.test.ts` | 25–40 | TODO |
+| 74 | Polish | Write integration tests for Server Actions | `tests/integration/actions/*.test.ts` | 32, 42, 33 | TODO |
+| 75 | Polish | Set up Playwright E2E tests | `playwright.config.ts`, `tests/e2e/*.spec.ts` | 43, 45, 66 | TODO |
+| 76 | Polish | Create GitHub Actions CI pipeline | `.github/workflows/ci.yml` | 14, 73, 74 | TODO |
+| 77 | Polish | Configure Vercel deployment with migrations | `vercel.json`, `docs/devops/deployment.md` | all | TODO |
+| 78 | Polish | Add dynamic metadata and SEO (sitemap, OG tags) | `app/product/[slug]/page.tsx`, `app/api/sitemap/route.ts` | 29, 30 | TODO |
+| 79 | Polish | Add performance optimizations (caching, skeletons, image domains) | `lib/services/product.service.ts`, `next.config.mjs`, `app/*/loading.tsx` | 25–30 | TODO |
+| 80 | Polish | Final documentation update | `CLAUDE.md`, `docs/tasks/MASTER-TASK-LIST.md` | all | TODO |
