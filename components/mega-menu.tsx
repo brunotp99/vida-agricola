@@ -15,7 +15,7 @@ import {
   TreeDeciduous,
   Flower2,
 } from "lucide-react"
-import { categories, brands, products } from "@/lib/data"
+import type { CategoryTree } from "@/lib/services/category.service"
 
 const categoryIcons: Record<string, React.ElementType> = {
   "seeds-plants": Sprout,
@@ -28,10 +28,13 @@ const categoryIcons: Record<string, React.ElementType> = {
   greenhouse: Flower2,
 }
 
-export function MegaMenu() {
+interface MegaMenuProps {
+  categories: CategoryTree[]
+}
+
+export function MegaMenu({ categories }: MegaMenuProps) {
   const [activeCategory, setActiveCategory] = useState(categories[0]?.id || "")
   const currentCategory = categories.find((cat) => cat.id === activeCategory)
-  const featuredProducts = products.filter((p) => p.featured).slice(0, 3)
 
   return (
     <motion.div
@@ -104,7 +107,7 @@ export function MegaMenu() {
                   </Link>
                 </div>
                 <div className="grid grid-cols-2 gap-x-6 gap-y-1">
-                  {currentCategory.subcategories.map((sub) => (
+                  {currentCategory.children.map((sub) => (
                     <Link
                       key={sub.id}
                       href={`/category/${currentCategory.slug}/${sub.slug}`}
@@ -117,101 +120,32 @@ export function MegaMenu() {
                 </div>
 
                 {/* Category Image */}
-                <div className="mt-6 overflow-hidden rounded-lg">
-                  <div className="relative aspect-[16/9]">
-                    <Image
-                      src={currentCategory.image}
-                      alt={currentCategory.name}
-                      fill
-                      className="object-cover transition-transform duration-500 hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <p className="text-sm font-medium text-white/90">
-                        {currentCategory.description}
-                      </p>
+                {currentCategory.imageUrl && (
+                  <div className="mt-6 overflow-hidden rounded-lg">
+                    <div className="relative aspect-[16/9]">
+                      <Image
+                        src={currentCategory.imageUrl}
+                        alt={currentCategory.name}
+                        fill
+                        className="object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <p className="text-sm font-medium text-white/90">
+                          {currentCategory.description}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </motion.div>
             )}
           </div>
 
-          {/* Featured & Brands - Hidden on smaller screens */}
+          {/* Promo panel */}
           <div className="col-span-5 hidden border-l border-border/50 bg-muted/20 p-6 lg:block">
-            {/* Featured Products */}
-            <div className="mb-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Featured Products
-                </h3>
-                <Link
-                  href="/products?featured=true"
-                  className="text-xs font-medium text-primary hover:underline"
-                >
-                  See All
-                </Link>
-              </div>
-              <div className="space-y-3">
-                {featuredProducts.map((product) => (
-                  <Link
-                    key={product.id}
-                    href={`/product/${product.slug}`}
-                    className="group flex items-center gap-3 rounded-lg bg-background p-2 transition-all hover:shadow-md"
-                  >
-                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
-                      <Image
-                        src={product.images[0]}
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="truncate text-sm font-medium text-foreground group-hover:text-primary">
-                        {product.name}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-primary">
-                          ${product.price.toFixed(2)}
-                        </span>
-                        {product.originalPrice && (
-                          <span className="text-xs text-muted-foreground line-through">
-                            ${product.originalPrice.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Popular Brands */}
-            <div>
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Popular Brands
-                </h3>
-                <Link href="/brands" className="text-xs font-medium text-primary hover:underline">
-                  All Brands
-                </Link>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {brands.slice(0, 6).map((brand) => (
-                  <Link
-                    key={brand.id}
-                    href={`/brand/${brand.slug}`}
-                    className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-all hover:border-primary hover:text-primary"
-                  >
-                    {brand.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
             {/* Promo Banner */}
-            <div className="mt-6 overflow-hidden rounded-lg bg-gradient-to-r from-primary to-primary/80 p-4">
+            <div className="mt-auto overflow-hidden rounded-lg bg-gradient-to-r from-primary to-primary/80 p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="font-semibold text-primary-foreground">15% off your first order</p>

@@ -1,9 +1,9 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { motion } from "framer-motion"
 import {
   Check,
   ChevronRight,
@@ -14,40 +14,41 @@ import {
   Package,
   Truck,
   User,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { products, formatPrice } from '@/lib/data'
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
+import { formatPrice } from "@/lib/utils"
 
-// Sample cart items
-const cartItems = [
-  { ...products[0], quantity: 2 },
-  { ...products[3], quantity: 1 },
-]
+// Sample cart items (static placeholder — will be replaced when checkout is wired to DB)
+const cartItems: Array<{
+  id: string
+  name: string
+  slug: string
+  price: number
+  images: string[]
+  quantity: number
+}> = []
 
 const steps = [
-  { id: 1, name: 'Shipping', icon: MapPin },
-  { id: 2, name: 'Payment', icon: CreditCard },
-  { id: 3, name: 'Review', icon: Package },
+  { id: 1, name: "Shipping", icon: MapPin },
+  { id: 2, name: "Payment", icon: CreditCard },
+  { id: 3, name: "Review", icon: Package },
 ]
 
 export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(1)
-  const [shippingMethod, setShippingMethod] = useState('standard')
-  const [paymentMethod, setPaymentMethod] = useState('card')
+  const [shippingMethod, setShippingMethod] = useState("standard")
+  const [paymentMethod, setPaymentMethod] = useState("card")
 
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  )
-  const shipping = shippingMethod === 'express' ? 19.99 : subtotal > 99 ? 0 : 9.99
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const shipping = shippingMethod === "express" ? 19.99 : subtotal > 99 ? 0 : 9.99
   const tax = subtotal * 0.08
   const total = subtotal + shipping + tax
 
@@ -56,7 +57,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <Header categories={[]} />
       <main className="flex-1 bg-muted/30">
         {/* Breadcrumbs */}
         <div className="border-b border-border bg-card">
@@ -84,18 +85,16 @@ export default function CheckoutPage() {
                 <div key={step.id} className="flex items-center">
                   <div
                     className={`flex items-center gap-2 ${
-                      currentStep >= step.id
-                        ? 'text-primary'
-                        : 'text-muted-foreground'
+                      currentStep >= step.id ? "text-primary" : "text-muted-foreground"
                     }`}
                   >
                     <div
                       className={`flex h-10 w-10 items-center justify-center rounded-full ${
                         currentStep > step.id
-                          ? 'bg-primary text-primary-foreground'
+                          ? "bg-primary text-primary-foreground"
                           : currentStep === step.id
-                          ? 'border-2 border-primary bg-card text-primary'
-                          : 'border-2 border-muted bg-card text-muted-foreground'
+                            ? "border-2 border-primary bg-card text-primary"
+                            : "border-2 border-muted bg-card text-muted-foreground"
                       }`}
                     >
                       {currentStep > step.id ? (
@@ -109,7 +108,7 @@ export default function CheckoutPage() {
                   {index < steps.length - 1 && (
                     <div
                       className={`mx-4 h-0.5 w-16 sm:w-24 ${
-                        currentStep > step.id ? 'bg-primary' : 'bg-muted'
+                        currentStep > step.id ? "bg-primary" : "bg-muted"
                       }`}
                     />
                   )}
@@ -123,10 +122,7 @@ export default function CheckoutPage() {
             <div className="lg:col-span-2">
               {/* Step 1: Shipping */}
               {currentStep === 1 && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                >
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                   <Card className="border-border">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -148,11 +144,7 @@ export default function CheckoutPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="john@example.com"
-                        />
+                        <Input id="email" type="email" placeholder="john@example.com" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="phone">Phone</Label>
@@ -198,14 +190,10 @@ export default function CheckoutPage() {
                                 <Label htmlFor="standard" className="font-medium">
                                   Standard Shipping
                                 </Label>
-                                <p className="text-sm text-muted-foreground">
-                                  3-5 business days
-                                </p>
+                                <p className="text-sm text-muted-foreground">3-5 business days</p>
                               </div>
                             </div>
-                            <span className="font-medium">
-                              {subtotal > 99 ? 'Free' : '$9.99'}
-                            </span>
+                            <span className="font-medium">{subtotal > 99 ? "Free" : "$9.99"}</span>
                           </div>
                           <div className="flex items-center justify-between rounded-lg border border-border p-4">
                             <div className="flex items-center gap-3">
@@ -214,9 +202,7 @@ export default function CheckoutPage() {
                                 <Label htmlFor="express" className="font-medium">
                                   Express Shipping
                                 </Label>
-                                <p className="text-sm text-muted-foreground">
-                                  1-2 business days
-                                </p>
+                                <p className="text-sm text-muted-foreground">1-2 business days</p>
                               </div>
                             </div>
                             <span className="font-medium">$19.99</span>
@@ -238,10 +224,7 @@ export default function CheckoutPage() {
 
               {/* Step 2: Payment */}
               {currentStep === 2 && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                >
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                   <Card className="border-border">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -277,14 +260,11 @@ export default function CheckoutPage() {
                         </div>
                       </RadioGroup>
 
-                      {paymentMethod === 'card' && (
+                      {paymentMethod === "card" && (
                         <div className="space-y-4">
                           <div className="space-y-2">
                             <Label htmlFor="cardNumber">Card Number</Label>
-                            <Input
-                              id="cardNumber"
-                              placeholder="4242 4242 4242 4242"
-                            />
+                            <Input id="cardNumber" placeholder="4242 4242 4242 4242" />
                           </div>
                           <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-2">
@@ -327,10 +307,7 @@ export default function CheckoutPage() {
 
               {/* Step 3: Review */}
               {currentStep === 3 && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                >
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                   <Card className="border-border">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -352,12 +329,8 @@ export default function CheckoutPage() {
                               />
                             </div>
                             <div className="flex-1">
-                              <h4 className="font-medium text-foreground">
-                                {item.name}
-                              </h4>
-                              <p className="text-sm text-muted-foreground">
-                                Qty: {item.quantity}
-                              </p>
+                              <h4 className="font-medium text-foreground">{item.name}</h4>
+                              <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                             </div>
                             <p className="font-medium text-foreground">
                               {formatPrice(item.price * item.quantity)}
@@ -370,9 +343,7 @@ export default function CheckoutPage() {
 
                       {/* Shipping Address */}
                       <div>
-                        <h4 className="mb-2 font-medium text-foreground">
-                          Shipping Address
-                        </h4>
+                        <h4 className="mb-2 font-medium text-foreground">Shipping Address</h4>
                         <p className="text-sm text-muted-foreground">
                           John Doe
                           <br />
@@ -384,12 +355,8 @@ export default function CheckoutPage() {
 
                       {/* Payment Method */}
                       <div>
-                        <h4 className="mb-2 font-medium text-foreground">
-                          Payment Method
-                        </h4>
-                        <p className="text-sm text-muted-foreground">
-                          Credit Card ending in 4242
-                        </p>
+                        <h4 className="mb-2 font-medium text-foreground">Payment Method</h4>
+                        <p className="text-sm text-muted-foreground">Credit Card ending in 4242</p>
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -446,7 +413,7 @@ export default function CheckoutPage() {
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Shipping</span>
                       <span className="text-foreground">
-                        {shipping === 0 ? 'Free' : formatPrice(shipping)}
+                        {shipping === 0 ? "Free" : formatPrice(shipping)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">

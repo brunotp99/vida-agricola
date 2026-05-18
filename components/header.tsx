@@ -33,6 +33,7 @@ import {
 import { MegaMenu } from "./mega-menu"
 import { MobileMenu } from "./mobile-menu"
 import { authClient } from "@/lib/auth-client"
+import type { CategoryTree } from "@/lib/services/category.service"
 
 const mainNavItems = [
   { label: "Home", href: "/" },
@@ -44,7 +45,11 @@ const mainNavItems = [
   { label: "Contact", href: "/contact" },
 ]
 
-export function Header() {
+interface HeaderProps {
+  categories?: CategoryTree[]
+}
+
+export function Header({ categories = [] }: HeaderProps) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [megaMenuOpen, setMegaMenuOpen] = useState(false)
@@ -293,7 +298,7 @@ export function Header() {
           <AnimatePresence>
             {megaMenuOpen && (
               <div onMouseEnter={handleMouseEnter}>
-                <MegaMenu />
+                <MegaMenu categories={categories} />
               </div>
             )}
           </AnimatePresence>

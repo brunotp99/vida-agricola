@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { ChevronDown, SlidersHorizontal, Grid3X3, List, X } from "lucide-react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -16,41 +17,58 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
-import { categories, brands } from "@/lib/data"
 
-interface ProductFiltersProps {
-  selectedCategory?: string
-  onFilterChange?: (filters: FilterState) => void
-}
+function useFilterState() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-export interface FilterState {
-  categories: string[]
-  brands: string[]
-  priceRange: [number, number]
-  rating: number | null
-  inStock: boolean
-}
+  const priceMin = Number(searchParams.get("priceMin") ?? "0")
+  const priceMax = Number(searchParams.get("priceMax") ?? "500")
+  const inStock = searchParams.get("inStock") === "true"
+  const rating = searchParams.get("rating") ? Number(searchParams.get("rating")) : null
 
-const initialFilters: FilterState = {
-  categories: [],
-  brands: [],
-  priceRange: [0, 500],
-  rating: null,
-  inStock: false,
+  const activeFilterCount =
+    (inStock ? 1 : 0) +
+    (rating ? 1 : 0) +
+    (searchParams.has("priceMin") || searchParams.has("priceMax") ? 1 : 0)
+
+  function updateFilter(key: string, value: string | null) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (value === null || value === "") {
+      params.delete(key)
+    } else {
+      params.set(key, value)
+    }
+    params.delete("page")
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  function clearFilters() {
+    router.push(pathname)
+  }
+
+  return { priceMin, priceMax, inStock, rating, activeFilterCount, updateFilter, clearFilters }
 }
 
 interface FilterContentProps {
-  filters: FilterState
+  priceMin: number
+  priceMax: number
+  inStock: boolean
+  rating: number | null
   activeFilterCount: number
+  updateFilter: (key: string, value: string | null) => void
   clearFilters: () => void
-  updateFilters: (newFilters: Partial<FilterState>) => void
 }
 
 function FilterContent({
-  filters,
+  priceMin,
+  priceMax,
+  inStock,
+  rating,
   activeFilterCount,
+  updateFilter,
   clearFilters,
-  updateFilters,
 }: FilterContentProps) {
   return (
     <div className="space-y-6">
@@ -62,68 +80,6 @@ function FilterContent({
         </Button>
       )}
 
-      {/* Categories */}
-      <Collapsible defaultOpen>
-        <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-semibold text-foreground">
-          Categories
-          <ChevronDown className="h-4 w-4" />
-        </CollapsibleTrigger>
-        <CollapsibleContent className="space-y-2 pt-2">
-          {categories.map((category) => (
-            <div key={category.id} className="flex items-center gap-2">
-              <Checkbox
-                id={`cat-${category.id}`}
-                checked={filters.categories.includes(category.id)}
-                onCheckedChange={(checked) => {
-                  updateFilters({
-                    categories: checked
-                      ? [...filters.categories, category.id]
-                      : filters.categories.filter((c) => c !== category.id),
-                  })
-                }}
-              />
-              <Label
-                htmlFor={`cat-${category.id}`}
-                className="cursor-pointer text-sm text-muted-foreground"
-              >
-                {category.name}
-              </Label>
-            </div>
-          ))}
-        </CollapsibleContent>
-      </Collapsible>
-
-      {/* Brands */}
-      <Collapsible defaultOpen>
-        <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-semibold text-foreground">
-          Brands
-          <ChevronDown className="h-4 w-4" />
-        </CollapsibleTrigger>
-        <CollapsibleContent className="space-y-2 pt-2">
-          {brands.map((brand) => (
-            <div key={brand.id} className="flex items-center gap-2">
-              <Checkbox
-                id={`brand-${brand.id}`}
-                checked={filters.brands.includes(brand.id)}
-                onCheckedChange={(checked) => {
-                  updateFilters({
-                    brands: checked
-                      ? [...filters.brands, brand.id]
-                      : filters.brands.filter((b) => b !== brand.id),
-                  })
-                }}
-              />
-              <Label
-                htmlFor={`brand-${brand.id}`}
-                className="cursor-pointer text-sm text-muted-foreground"
-              >
-                {brand.name}
-              </Label>
-            </div>
-          ))}
-        </CollapsibleContent>
-      </Collapsible>
-
       {/* Price Range */}
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-semibold text-foreground">
@@ -132,16 +88,19 @@ function FilterContent({
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 pt-4">
           <Slider
-            value={filters.priceRange}
+            value={[priceMin, priceMax]}
             min={0}
             max={500}
             step={10}
-            onValueChange={(value) => updateFilters({ priceRange: value as [number, number] })}
+            onValueChange={(value) => {
+              updateFilter("priceMin", String(value[0]))
+              updateFilter("priceMax", String(value[1]))
+            }}
             className="w-full"
           />
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>${filters.priceRange[0]}</span>
-            <span>${filters.priceRange[1]}</span>
+            <span>${priceMin}</span>
+            <span>${priceMax}</span>
           </div>
         </CollapsibleContent>
       </Collapsible>
@@ -153,20 +112,20 @@ function FilterContent({
           <ChevronDown className="h-4 w-4" />
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-2 pt-2">
-          {[4, 3, 2, 1].map((rating) => (
-            <div key={rating} className="flex items-center gap-2">
+          {[4, 3, 2, 1].map((r) => (
+            <div key={r} className="flex items-center gap-2">
               <Checkbox
-                id={`rating-${rating}`}
-                checked={filters.rating === rating}
+                id={`rating-${r}`}
+                checked={rating === r}
                 onCheckedChange={(checked) => {
-                  updateFilters({ rating: checked ? rating : null })
+                  updateFilter("rating", checked ? String(r) : null)
                 }}
               />
               <Label
-                htmlFor={`rating-${rating}`}
+                htmlFor={`rating-${r}`}
                 className="cursor-pointer text-sm text-muted-foreground"
               >
-                {rating}+ Stars
+                {r}+ Stars
               </Label>
             </div>
           ))}
@@ -177,9 +136,9 @@ function FilterContent({
       <div className="flex items-center gap-2 py-2">
         <Checkbox
           id="in-stock"
-          checked={filters.inStock}
+          checked={inStock}
           onCheckedChange={(checked) => {
-            updateFilters({ inStock: checked as boolean })
+            updateFilter("inStock", checked ? "true" : null)
           }}
         />
         <Label htmlFor="in-stock" className="cursor-pointer text-sm font-semibold text-foreground">
@@ -190,26 +149,10 @@ function FilterContent({
   )
 }
 
-export function ProductFilters({ onFilterChange }: ProductFiltersProps) {
-  const [filters, setFilters] = useState<FilterState>(initialFilters)
+export function ProductFilters() {
+  const { priceMin, priceMax, inStock, rating, activeFilterCount, updateFilter, clearFilters } =
+    useFilterState()
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
-
-  const updateFilters = (newFilters: Partial<FilterState>) => {
-    const updated = { ...filters, ...newFilters }
-    setFilters(updated)
-    onFilterChange?.(updated)
-  }
-
-  const clearFilters = () => {
-    setFilters(initialFilters)
-    onFilterChange?.(initialFilters)
-  }
-
-  const activeFilterCount =
-    filters.categories.length +
-    filters.brands.length +
-    (filters.rating ? 1 : 0) +
-    (filters.inStock ? 1 : 0)
 
   return (
     <>
@@ -218,10 +161,13 @@ export function ProductFilters({ onFilterChange }: ProductFiltersProps) {
         <div className="sticky top-24 rounded-lg border border-border bg-card p-6">
           <h2 className="mb-4 text-lg font-semibold text-foreground">Filters</h2>
           <FilterContent
-            filters={filters}
+            priceMin={priceMin}
+            priceMax={priceMax}
+            inStock={inStock}
+            rating={rating}
             activeFilterCount={activeFilterCount}
+            updateFilter={updateFilter}
             clearFilters={clearFilters}
-            updateFilters={updateFilters}
           />
         </div>
       </aside>
@@ -243,10 +189,13 @@ export function ProductFilters({ onFilterChange }: ProductFiltersProps) {
           </SheetHeader>
           <div className="mt-6">
             <FilterContent
-              filters={filters}
+              priceMin={priceMin}
+              priceMax={priceMax}
+              inStock={inStock}
+              rating={rating}
               activeFilterCount={activeFilterCount}
+              updateFilter={updateFilter}
               clearFilters={clearFilters}
-              updateFilters={updateFilters}
             />
           </div>
         </SheetContent>
@@ -256,20 +205,31 @@ export function ProductFilters({ onFilterChange }: ProductFiltersProps) {
 }
 
 export function ProductSortAndView() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+
+  function handleSortChange(value: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("sort", value)
+    params.delete("page")
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  const currentSort = searchParams.get("sort") ?? "newest"
 
   return (
     <div className="flex items-center gap-4">
-      <Select defaultValue="featured">
+      <Select value={currentSort} onValueChange={handleSortChange}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="featured">Featured</SelectItem>
-          <SelectItem value="price-low">Price: Low to High</SelectItem>
-          <SelectItem value="price-high">Price: High to Low</SelectItem>
-          <SelectItem value="rating">Highest Rated</SelectItem>
           <SelectItem value="newest">Newest</SelectItem>
+          <SelectItem value="price-asc">Price: Low to High</SelectItem>
+          <SelectItem value="price-desc">Price: High to Low</SelectItem>
+          <SelectItem value="popular">Most Popular</SelectItem>
         </SelectContent>
       </Select>
 

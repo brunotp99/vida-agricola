@@ -1,94 +1,40 @@
-'use client'
+import { ProductSection } from "./product-section-client"
+import { ProductService, serializeProductCard } from "@/lib/services/product.service"
 
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ProductCard } from './product-card'
-import { products } from '@/lib/data'
-
-interface ProductSectionProps {
-  title: string
-  subtitle?: string
-  products: typeof products
-  viewAllHref?: string
-  columns?: 4 | 5
-}
-
-export function ProductSection({
-  title,
-  subtitle,
-  products: sectionProducts,
-  viewAllHref,
-  columns = 4,
-}: ProductSectionProps) {
-  return (
-    <section className="py-16">
-      <div className="container mx-auto px-4">
-        <div className="mb-10 flex items-end justify-between">
-          <div>
-            <h2 className="mb-2 text-3xl font-bold text-foreground md:text-4xl">
-              {title}
-            </h2>
-            {subtitle && (
-              <p className="text-muted-foreground">{subtitle}</p>
-            )}
-          </div>
-          {viewAllHref && (
-            <Link href={viewAllHref}>
-              <Button variant="ghost" className="gap-2 text-primary hover:text-primary/80">
-                View All
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          )}
-        </div>
-
-        <div
-          className={`grid grid-cols-1 gap-6 sm:grid-cols-2 ${
-            columns === 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
-          }`}
-        >
-          {sectionProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-export function BestSellers() {
-  const bestSellers = products.filter((p) => p.bestSeller)
+export async function BestSellers() {
+  const raw = await ProductService.findBestSellers()
+  const products = raw.map(serializeProductCard)
   return (
     <ProductSection
       title="Best Sellers"
       subtitle="Our most popular products loved by farmers"
-      products={bestSellers}
+      products={products}
       viewAllHref="/best-sellers"
     />
   )
 }
 
-export function NewArrivals() {
-  const newArrivals = products.filter((p) => p.newArrival)
+export async function NewArrivals() {
+  const raw = await ProductService.findNewArrivals()
+  const products = raw.map(serializeProductCard)
   return (
     <ProductSection
       title="New Arrivals"
       subtitle="Fresh additions to our product range"
-      products={newArrivals}
+      products={products}
       viewAllHref="/new-arrivals"
     />
   )
 }
 
-export function FeaturedProducts() {
-  const featured = products.filter((p) => p.featured)
+export async function FeaturedProducts() {
+  const raw = await ProductService.findFeatured()
+  const products = raw.map(serializeProductCard)
   return (
     <ProductSection
       title="Featured Products"
       subtitle="Handpicked selection of premium products"
-      products={featured}
+      products={products}
       viewAllHref="/featured"
     />
   )

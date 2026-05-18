@@ -1,37 +1,52 @@
-import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { ChevronRight, Home } from 'lucide-react'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { ProductCard } from '@/components/product-card'
-import { ProductFilters, ProductSortAndView } from '@/components/product-filters'
-import { categories, products } from '@/lib/data'
+import { notFound } from "next/navigation"
+import { Suspense } from "react"
+import Link from "next/link"
+import { ChevronRight, Home } from "lucide-react"
+import { HeaderServer } from "@/components/header-server"
+import { Footer } from "@/components/footer"
+import { ProductCard } from "@/components/product-card"
+import { ProductFilters, ProductSortAndView } from "@/components/product-filters"
+import { CategoryService } from "@/lib/services/category.service"
+import { ProductService, serializeProductCard } from "@/lib/services/product.service"
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{
+    priceMin?: string
+    priceMax?: string
+    sort?: string
+    inStock?: string
+    page?: string
+  }>
 }
 
-export async function generateStaticParams() {
-  return categories.map((category) => ({
-    slug: category.slug,
-  }))
-}
-
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params
-  const category = categories.find((c) => c.slug === slug)
+  const sp = await searchParams
+
+  const [category, { products: rawProducts, total }] = await Promise.all([
+    CategoryService.findBySlug(slug),
+    ProductService.findMany({
+      categorySlug: slug,
+      priceMin: sp.priceMin ? Number(sp.priceMin) : undefined,
+      priceMax: sp.priceMax ? Number(sp.priceMax) : undefined,
+      inStock: sp.inStock === "true" ? true : undefined,
+      sort: (sp.sort as "price-asc" | "price-desc" | "newest" | "rating" | "popular") || "newest",
+      page: sp.page ? Number(sp.page) : 1,
+    }),
+  ])
 
   if (!category) {
     notFound()
   }
 
-  const categoryProducts = products.filter(
-    (p) => p.category === category.id || p.category === slug
-  )
+  const products = rawProducts.map(serializeProductCard)
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <Suspense fallback={null}>
+        <HeaderServer />
+      </Suspense>
       <main className="flex-1">
         {/* Breadcrumbs */}
         <div className="border-b border-border bg-muted">
@@ -50,9 +65,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         {/* Category Header */}
         <div className="bg-card py-8">
           <div className="container mx-auto px-4">
-            <h1 className="mb-2 text-3xl font-bold text-foreground md:text-4xl">
-              {category.name}
-            </h1>
+            <h1 className="mb-2 text-3xl font-bold text-foreground md:text-4xl">{category.name}</h1>
             <p className="text-muted-foreground">{category.description}</p>
           </div>
         </div>
@@ -62,35 +75,37 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <div className="container mx-auto px-4">
             <div className="flex gap-8">
               {/* Filters Sidebar */}
-              <ProductFilters selectedCategory={category.id} />
+              <ProductFilters />
 
               {/* Products Grid */}
               <div className="flex-1">
                 {/* Toolbar */}
                 <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                   <p className="text-sm text-muted-foreground">
-                    Showing <strong>{categoryProducts.length}</strong> products
+                    Showing <strong>{total}</strong> products
                   </p>
                   <ProductSortAndView />
                 </div>
 
                 {/* Subcategories */}
-                <div className="mb-6 flex flex-wrap gap-2">
-                  {category.subcategories.map((sub) => (
-                    <Link
-                      key={sub.id}
-                      href={`/category/${category.slug}/${sub.slug}`}
-                      className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
-                    >
-                      {sub.name}
-                    </Link>
-                  ))}
-                </div>
+                {category.children.length > 0 && (
+                  <div className="mb-6 flex flex-wrap gap-2">
+                    {category.children.map((sub) => (
+                      <Link
+                        key={sub.id}
+                        href={`/category/${category.slug}/${sub.slug}`}
+                        className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
 
                 {/* Products */}
-                {categoryProducts.length > 0 ? (
+                {products.length > 0 ? (
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {categoryProducts.map((product) => (
+                    {products.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
                   </div>
@@ -99,15 +114,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     <p className="text-lg text-muted-foreground">
                       No products found in this category.
                     </p>
-                  </div>
-                )}
-
-                {/* Load More */}
-                {categoryProducts.length > 0 && (
-                  <div className="mt-8 text-center">
-                    <button className="rounded-lg bg-primary px-8 py-3 font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-                      Load More Products
-                    </button>
                   </div>
                 )}
               </div>

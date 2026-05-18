@@ -1,32 +1,42 @@
-import { notFound } from 'next/navigation'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { ProductDetail } from '@/components/product-detail'
-import { products } from '@/lib/data'
+import { notFound } from "next/navigation"
+import { Suspense } from "react"
+import { HeaderServer } from "@/components/header-server"
+import { Footer } from "@/components/footer"
+import { ProductDetailComponent } from "@/components/product-detail"
+import { ProductService, serializeProductCard } from "@/lib/services/product.service"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
 
-export async function generateStaticParams() {
-  return products.map((product) => ({
-    slug: product.slug,
-  }))
+export async function generateMetadata({ params }: ProductPageProps) {
+  const { slug } = await params
+  const product = await ProductService.findBySlug(slug)
+  if (!product) return {}
+  return {
+    title: product.name,
+    description: product.description,
+  }
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const product = products.find((p) => p.slug === slug)
+  const product = await ProductService.findBySlug(slug)
 
   if (!product) {
     notFound()
   }
 
+  const rawRelated = await ProductService.findRelated(product.id, product.categoryId)
+  const related = rawRelated.map(serializeProductCard)
+
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <Suspense fallback={null}>
+        <HeaderServer />
+      </Suspense>
       <main className="flex-1">
-        <ProductDetail product={product} />
+        <ProductDetailComponent product={product} relatedProducts={related} />
       </main>
       <Footer />
     </div>

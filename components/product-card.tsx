@@ -1,22 +1,28 @@
-'use client'
+"use client"
 
-import Image from 'next/image'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { ArrowRight, Star, Heart, ShoppingCart, Eye } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import type { Product } from '@/lib/data'
-import { formatPrice, calculateDiscount } from '@/lib/data'
+import Image from "next/image"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { Star, Heart, ShoppingCart, Eye } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import type { SerializedProductCard } from "@/lib/services/product.service"
+import { formatPrice, calculateDiscount } from "@/lib/utils"
 
 interface ProductCardProps {
-  product: Product
-  variant?: 'default' | 'compact'
+  product: SerializedProductCard
+  variant?: "default" | "compact"
 }
 
-export function ProductCard({ product, variant = 'default' }: ProductCardProps) {
-  const hasDiscount = product.originalPrice && product.originalPrice > product.price
+export function ProductCard({ product, variant = "default" }: ProductCardProps) {
+  const price = product.price
+  const compareAtPrice = product.compareAtPrice
+  const hasDiscount = compareAtPrice !== null && compareAtPrice > price
+  const avgRating =
+    product.reviews.length > 0
+      ? product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length
+      : 0
 
   return (
     <motion.div
@@ -30,12 +36,10 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
         <div className="absolute left-3 top-3 z-10 flex flex-col gap-2">
           {hasDiscount && (
             <Badge className="bg-destructive text-destructive-foreground">
-              -{calculateDiscount(product.price, product.originalPrice!)}%
+              -{calculateDiscount(price, compareAtPrice!)}%
             </Badge>
           )}
-          {product.newArrival && (
-            <Badge className="bg-primary text-primary-foreground">New</Badge>
-          )}
+          {product.newArrival && <Badge className="bg-primary text-primary-foreground">New</Badge>}
           {product.bestSeller && (
             <Badge className="bg-secondary text-secondary-foreground">Best Seller</Badge>
           )}
@@ -66,7 +70,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
         <Link href={`/product/${product.slug}`}>
           <div className="relative aspect-square overflow-hidden bg-muted">
             <Image
-              src={product.images[0]}
+              src={product.images[0]?.url ?? "/placeholder.jpg"}
               alt={product.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -75,9 +79,9 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
         </Link>
 
         <CardContent className="p-4">
-          {/* Category */}
+          {/* Brand */}
           <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {product.brand}
+            {product.brand?.name ?? ""}
           </p>
 
           {/* Title */}
@@ -94,26 +98,22 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
                 <Star
                   key={i}
                   className={`h-3.5 w-3.5 ${
-                    i < Math.floor(product.rating)
-                      ? 'fill-secondary text-secondary'
-                      : 'fill-muted text-muted'
+                    i < Math.floor(avgRating)
+                      ? "fill-secondary text-secondary"
+                      : "fill-muted text-muted"
                   }`}
                 />
               ))}
             </div>
-            <span className="text-xs text-muted-foreground">
-              ({product.reviewCount})
-            </span>
+            <span className="text-xs text-muted-foreground">({product._count.reviews})</span>
           </div>
 
           {/* Price */}
           <div className="mb-4 flex items-center gap-2">
-            <span className="text-lg font-bold text-foreground">
-              {formatPrice(product.price)}
-            </span>
+            <span className="text-lg font-bold text-foreground">{formatPrice(price)}</span>
             {hasDiscount && (
               <span className="text-sm text-muted-foreground line-through">
-                {formatPrice(product.originalPrice!)}
+                {formatPrice(compareAtPrice!)}
               </span>
             )}
           </div>
