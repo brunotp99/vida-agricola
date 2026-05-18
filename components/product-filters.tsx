@@ -1,32 +1,22 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { ChevronDown, SlidersHorizontal, Grid3X3, List, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider'
+import { useState } from "react"
+import { ChevronDown, SlidersHorizontal, Grid3X3, List, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
-import { Badge } from '@/components/ui/badge'
-import { categories, brands } from '@/lib/data'
+} from "@/components/ui/select"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Badge } from "@/components/ui/badge"
+import { categories, brands } from "@/lib/data"
 
 interface ProductFiltersProps {
   selectedCategory?: string
@@ -49,37 +39,24 @@ const initialFilters: FilterState = {
   inStock: false,
 }
 
-export function ProductFilters({ selectedCategory, onFilterChange }: ProductFiltersProps) {
-  const [filters, setFilters] = useState<FilterState>(initialFilters)
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+interface FilterContentProps {
+  filters: FilterState
+  activeFilterCount: number
+  clearFilters: () => void
+  updateFilters: (newFilters: Partial<FilterState>) => void
+}
 
-  const updateFilters = (newFilters: Partial<FilterState>) => {
-    const updated = { ...filters, ...newFilters }
-    setFilters(updated)
-    onFilterChange?.(updated)
-  }
-
-  const clearFilters = () => {
-    setFilters(initialFilters)
-    onFilterChange?.(initialFilters)
-  }
-
-  const activeFilterCount =
-    filters.categories.length +
-    filters.brands.length +
-    (filters.rating ? 1 : 0) +
-    (filters.inStock ? 1 : 0)
-
-  const FilterContent = () => (
+function FilterContent({
+  filters,
+  activeFilterCount,
+  clearFilters,
+  updateFilters,
+}: FilterContentProps) {
+  return (
     <div className="space-y-6">
       {/* Clear Filters */}
       {activeFilterCount > 0 && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={clearFilters}
-          className="w-full gap-2"
-        >
+        <Button variant="outline" size="sm" onClick={clearFilters} className="w-full gap-2">
           <X className="h-4 w-4" />
           Clear All Filters ({activeFilterCount})
         </Button>
@@ -159,9 +136,7 @@ export function ProductFilters({ selectedCategory, onFilterChange }: ProductFilt
             min={0}
             max={500}
             step={10}
-            onValueChange={(value) =>
-              updateFilters({ priceRange: value as [number, number] })
-            }
+            onValueChange={(value) => updateFilters({ priceRange: value as [number, number] })}
             className="w-full"
           />
           <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -207,15 +182,34 @@ export function ProductFilters({ selectedCategory, onFilterChange }: ProductFilt
             updateFilters({ inStock: checked as boolean })
           }}
         />
-        <Label
-          htmlFor="in-stock"
-          className="cursor-pointer text-sm font-semibold text-foreground"
-        >
+        <Label htmlFor="in-stock" className="cursor-pointer text-sm font-semibold text-foreground">
           In Stock Only
         </Label>
       </div>
     </div>
   )
+}
+
+export function ProductFilters({ onFilterChange }: ProductFiltersProps) {
+  const [filters, setFilters] = useState<FilterState>(initialFilters)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+
+  const updateFilters = (newFilters: Partial<FilterState>) => {
+    const updated = { ...filters, ...newFilters }
+    setFilters(updated)
+    onFilterChange?.(updated)
+  }
+
+  const clearFilters = () => {
+    setFilters(initialFilters)
+    onFilterChange?.(initialFilters)
+  }
+
+  const activeFilterCount =
+    filters.categories.length +
+    filters.brands.length +
+    (filters.rating ? 1 : 0) +
+    (filters.inStock ? 1 : 0)
 
   return (
     <>
@@ -223,7 +217,12 @@ export function ProductFilters({ selectedCategory, onFilterChange }: ProductFilt
       <aside className="hidden w-64 shrink-0 lg:block">
         <div className="sticky top-24 rounded-lg border border-border bg-card p-6">
           <h2 className="mb-4 text-lg font-semibold text-foreground">Filters</h2>
-          <FilterContent />
+          <FilterContent
+            filters={filters}
+            activeFilterCount={activeFilterCount}
+            clearFilters={clearFilters}
+            updateFilters={updateFilters}
+          />
         </div>
       </aside>
 
@@ -234,9 +233,7 @@ export function ProductFilters({ selectedCategory, onFilterChange }: ProductFilt
             <SlidersHorizontal className="h-4 w-4" />
             Filters
             {activeFilterCount > 0 && (
-              <Badge className="ml-1 bg-primary text-primary-foreground">
-                {activeFilterCount}
-              </Badge>
+              <Badge className="ml-1 bg-primary text-primary-foreground">{activeFilterCount}</Badge>
             )}
           </Button>
         </SheetTrigger>
@@ -245,7 +242,12 @@ export function ProductFilters({ selectedCategory, onFilterChange }: ProductFilt
             <SheetTitle>Filters</SheetTitle>
           </SheetHeader>
           <div className="mt-6">
-            <FilterContent />
+            <FilterContent
+              filters={filters}
+              activeFilterCount={activeFilterCount}
+              clearFilters={clearFilters}
+              updateFilters={updateFilters}
+            />
           </div>
         </SheetContent>
       </Sheet>
@@ -254,7 +256,7 @@ export function ProductFilters({ selectedCategory, onFilterChange }: ProductFilt
 }
 
 export function ProductSortAndView() {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   return (
     <div className="flex items-center gap-4">
@@ -273,16 +275,16 @@ export function ProductSortAndView() {
 
       <div className="hidden items-center gap-1 md:flex">
         <Button
-          variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+          variant={viewMode === "grid" ? "secondary" : "ghost"}
           size="icon"
-          onClick={() => setViewMode('grid')}
+          onClick={() => setViewMode("grid")}
         >
           <Grid3X3 className="h-4 w-4" />
         </Button>
         <Button
-          variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+          variant={viewMode === "list" ? "secondary" : "ghost"}
           size="icon"
-          onClick={() => setViewMode('list')}
+          onClick={() => setViewMode("list")}
         >
           <List className="h-4 w-4" />
         </Button>

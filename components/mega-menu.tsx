@@ -1,25 +1,35 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { motion } from 'framer-motion'
-import { ArrowRight, Leaf, Sprout, Bug, Droplets, Sun, Wheat, TreeDeciduous, Flower2 } from 'lucide-react'
-import { categories, brands, products } from '@/lib/data'
+import { useState } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { motion } from "framer-motion"
+import {
+  ArrowRight,
+  Leaf,
+  Sprout,
+  Bug,
+  Droplets,
+  Sun,
+  Wheat,
+  TreeDeciduous,
+  Flower2,
+} from "lucide-react"
+import { categories, brands, products } from "@/lib/data"
 
 const categoryIcons: Record<string, React.ElementType> = {
-  'seeds-plants': Sprout,
-  'fertilizers': Leaf,
-  'pest-control': Bug,
-  'irrigation': Droplets,
-  'tools-equipment': Sun,
-  'animal-feed': Wheat,
-  'organic': TreeDeciduous,
-  'greenhouse': Flower2,
+  "seeds-plants": Sprout,
+  fertilizers: Leaf,
+  "pest-control": Bug,
+  irrigation: Droplets,
+  "tools-equipment": Sun,
+  "animal-feed": Wheat,
+  organic: TreeDeciduous,
+  greenhouse: Flower2,
 }
 
 export function MegaMenu() {
-  const [activeCategory, setActiveCategory] = useState(categories[0]?.id || '')
+  const [activeCategory, setActiveCategory] = useState(categories[0]?.id || "")
   const currentCategory = categories.find((cat) => cat.id === activeCategory)
   const featuredProducts = products.filter((p) => p.featured).slice(0, 3)
 
@@ -28,7 +38,7 @@ export function MegaMenu() {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className="absolute left-0 top-full z-50 w-[min(1000px,calc(100vw-2rem))] pt-2"
     >
       <div className="overflow-hidden rounded-xl border border-border/50 bg-card shadow-2xl shadow-black/10">
@@ -50,19 +60,23 @@ export function MegaMenu() {
                     onClick={() => setActiveCategory(category.id)}
                     className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-all duration-150 ${
                       activeCategory === category.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-foreground hover:bg-muted'
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-muted"
                     }`}
                   >
-                    <Icon className={`h-4 w-4 shrink-0 ${
-                      activeCategory === category.id ? 'text-primary-foreground' : 'text-primary'
-                    }`} />
+                    <Icon
+                      className={`h-4 w-4 shrink-0 ${
+                        activeCategory === category.id ? "text-primary-foreground" : "text-primary"
+                      }`}
+                    />
                     <span className="flex-1 font-medium">{category.name}</span>
-                    <ArrowRight className={`h-3.5 w-3.5 transition-transform ${
-                      activeCategory === category.id 
-                        ? 'translate-x-0 opacity-100' 
-                        : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-50'
-                    }`} />
+                    <ArrowRight
+                      className={`h-3.5 w-3.5 transition-transform ${
+                        activeCategory === category.id
+                          ? "translate-x-0 opacity-100"
+                          : "-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-50"
+                      }`}
+                    />
                   </button>
                 )
               })}
@@ -131,7 +145,10 @@ export function MegaMenu() {
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Featured Products
                 </h3>
-                <Link href="/products?featured=true" className="text-xs font-medium text-primary hover:underline">
+                <Link
+                  href="/products?featured=true"
+                  className="text-xs font-medium text-primary hover:underline"
+                >
                   See All
                 </Link>
               </div>
@@ -156,11 +173,11 @@ export function MegaMenu() {
                       </p>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-primary">
-                          ${product.salePrice?.toFixed(2) || product.price.toFixed(2)}
+                          ${product.price.toFixed(2)}
                         </span>
-                        {product.salePrice && (
+                        {product.originalPrice && (
                           <span className="text-xs text-muted-foreground line-through">
-                            ${product.price.toFixed(2)}
+                            ${product.originalPrice.toFixed(2)}
                           </span>
                         )}
                       </div>
@@ -198,9 +215,7 @@ export function MegaMenu() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="font-semibold text-primary-foreground">15% off your first order</p>
-                  <p className="text-sm text-primary-foreground/80">
-                    Use code: WELCOME15
-                  </p>
+                  <p className="text-sm text-primary-foreground/80">Use code: WELCOME15</p>
                 </div>
                 <Link
                   href="/deals"
