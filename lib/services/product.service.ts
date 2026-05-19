@@ -133,6 +133,21 @@ const findBySlug = async (slug: string) => {
 
 export type ProductDetail = NonNullable<Awaited<ReturnType<typeof findBySlug>>>
 
+export type SerializedProductDetail = Omit<ProductDetail, "price" | "compareAtPrice" | "variants"> & {
+  price: number
+  compareAtPrice: number | null
+  variants: Array<Omit<ProductDetail["variants"][number], "price"> & { price: number }>
+}
+
+export function serializeProductDetail(p: ProductDetail): SerializedProductDetail {
+  return {
+    ...p,
+    price: decimalToNumber(p.price),
+    compareAtPrice: p.compareAtPrice == null ? null : decimalToNumber(p.compareAtPrice),
+    variants: p.variants.map((v) => ({ ...v, price: decimalToNumber(v.price) })),
+  }
+}
+
 const findFeatured = unstable_cache(
   async () => {
     return prisma.product.findMany({

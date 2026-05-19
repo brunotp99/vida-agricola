@@ -10,7 +10,7 @@ import { CategoryService } from "@/lib/services/category.service"
 import { ProductService, serializeProductCard } from "@/lib/services/product.service"
 
 interface CategoryPageProps {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string[] }>
   searchParams: Promise<{
     priceMin?: string
     priceMax?: string
@@ -21,7 +21,9 @@ interface CategoryPageProps {
 }
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
-  const { slug } = await params
+  const { slug: slugParts } = await params
+  // Last segment is the target category (supports /category/parent/child)
+  const slug = slugParts[slugParts.length - 1]
   const sp = await searchParams
 
   const [category, { products: rawProducts, total }] = await Promise.all([
@@ -42,6 +44,11 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
   const products = rawProducts.map(serializeProductCard)
 
+  // Build breadcrumb: Home > [parent] > category
+  const parentCategory = category.parentId
+    ? await CategoryService.findBySlug(slugParts[0])
+    : null
+
   return (
     <div className="flex min-h-screen flex-col">
       <Suspense fallback={null}>
@@ -56,6 +63,17 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 <Home className="h-4 w-4" />
                 Home
               </Link>
+              {parentCategory && (
+                <>
+                  <ChevronRight className="h-4 w-4" />
+                  <Link
+                    href={`/category/${parentCategory.slug}`}
+                    className="hover:text-foreground"
+                  >
+                    {parentCategory.name}
+                  </Link>
+                </>
+              )}
               <ChevronRight className="h-4 w-4" />
               <span className="font-medium text-foreground">{category.name}</span>
             </nav>
@@ -105,8 +123,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 {/* Products */}
                 {products.length > 0 ? (
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {products.map((product) => (
-                      <ProductCard key={product.id} product={product} />
+                    {products.map((product, index) => (
+                      <ProductCard key={product.id} product={product} imagePriority={index === 0} />
                     ))}
                   </div>
                 ) : (

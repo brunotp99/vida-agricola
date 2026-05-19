@@ -26,14 +26,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import type { ProductDetail, SerializedProductCard } from "@/lib/services/product.service"
+import type { SerializedProductDetail, SerializedProductCard } from "@/lib/services/product.service"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
 import { ProductCard } from "@/components/product-card"
 import { ReviewForm } from "@/components/account/review-form"
 import { authClient } from "@/lib/auth-client"
 
 interface ProductDetailProps {
-  product: ProductDetail
+  product: SerializedProductDetail
   relatedProducts: SerializedProductCard[]
   canReview?: boolean
 }
@@ -47,17 +47,8 @@ export function ProductDetailComponent({
   const [quantity, setQuantity] = useState(1)
   const { data: session } = authClient.useSession()
 
-  function toNum(val: unknown): number {
-    if (typeof val === "number") return val
-    if (typeof val === "string") return parseFloat(val)
-    if (val != null && typeof (val as { toNumber?: unknown }).toNumber === "function") {
-      return (val as { toNumber(): number }).toNumber()
-    }
-    return Number(val)
-  }
-
-  const price = toNum(product.price)
-  const compareAtPrice = product.compareAtPrice != null ? toNum(product.compareAtPrice) : null
+  const price = product.price
+  const compareAtPrice = product.compareAtPrice
   const hasDiscount = compareAtPrice !== null && compareAtPrice > price
   const totalStock = product.variants.reduce((s, v) => s + v.stock, 0)
   const inStock = product.variants.some((v) => v.stock > 0)

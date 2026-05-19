@@ -20,12 +20,14 @@ interface ProductCardProps {
   product: SerializedProductCard
   variant?: "default" | "compact"
   isWishlisted?: boolean
+  imagePriority?: boolean
 }
 
 export function ProductCard({
   product,
   variant = "default",
   isWishlisted = false,
+  imagePriority = false,
 }: ProductCardProps) {
   const price = product.price
   const compareAtPrice = product.compareAtPrice
@@ -131,6 +133,7 @@ export function ProductCard({
               alt={product.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
+              priority={imagePriority}
             />
           </div>
         </Link>

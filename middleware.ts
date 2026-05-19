@@ -14,7 +14,9 @@ export function middleware(request: NextRequest) {
 
   if (ADMIN_ROUTES.some((r) => path.startsWith(r))) {
     if (!hasSession) {
-      return NextResponse.redirect(new URL("/", request.url))
+      return NextResponse.redirect(
+        new URL(`/login?redirect=${encodeURIComponent(path)}`, request.url),
+      )
     }
   }
 

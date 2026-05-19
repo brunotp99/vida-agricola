@@ -75,7 +75,8 @@ export async function Footer() {
               alt="Vida Agrícola"
               width={160}
               height={45}
-              className="mb-4 h-12 w-auto brightness-0 invert"
+              style={{ height: 48, width: "auto" }}
+              className="mb-4 brightness-0 invert"
             />
             <p className="mb-6 max-w-sm text-sm opacity-80">
               Your trusted partner in agricultural excellence. We provide premium quality products

@@ -105,6 +105,9 @@ export function Header({ categories = [] }: HeaderProps) {
     [],
   )
 
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
   const cartItemCount = 0
   const wishlistCount = 0
 
@@ -188,7 +191,7 @@ export function Header({ categories = [] }: HeaderProps) {
                 alt="Vida Agrícola"
                 width={36}
                 height={36}
-                className="h-9 w-auto"
+                style={{ height: 36, width: "auto" }}
                 priority
               />
               <span className="hidden text-xl font-bold tracking-tight text-foreground sm:block">
@@ -234,7 +237,7 @@ export function Header({ categories = [] }: HeaderProps) {
               </Button>
 
               {/* Account */}
-              {!isPending && (
+              {mounted && !isPending && (
                 <>
                   {session ? (
                     <DropdownMenu>

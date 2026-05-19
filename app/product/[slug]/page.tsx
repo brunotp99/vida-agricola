@@ -4,7 +4,7 @@ import { headers } from "next/headers"
 import { HeaderServer } from "@/components/header-server"
 import { Footer } from "@/components/footer"
 import { ProductDetailComponent } from "@/components/product-detail"
-import { ProductService, serializeProductCard } from "@/lib/services/product.service"
+import { ProductService, serializeProductCard, serializeProductDetail } from "@/lib/services/product.service"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
@@ -48,13 +48,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
     canReview = !!deliveredOrder
   }
 
+  const serializedProduct = serializeProductDetail(product)
+
   return (
     <div className="flex min-h-screen flex-col">
       <Suspense fallback={null}>
         <HeaderServer />
       </Suspense>
       <main className="flex-1">
-        <ProductDetailComponent product={product} relatedProducts={related} canReview={canReview} />
+        <ProductDetailComponent product={serializedProduct} relatedProducts={related} canReview={canReview} />
       </main>
       <Footer />
     </div>
