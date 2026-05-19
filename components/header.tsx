@@ -57,6 +57,7 @@ export function Header({ categories = [] }: HeaderProps) {
   const [showDropdown, setShowDropdown] = useState(false)
   const [megaMenuOpen, setMegaMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
   const { data: session, isPending } = authClient.useSession()
@@ -221,7 +222,13 @@ export function Header({ categories = [] }: HeaderProps) {
             {/* Actions */}
             <div className="flex items-center gap-1">
               {/* Mobile Search */}
-              <Button variant="ghost" size="icon" className="lg:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setMobileSearchOpen((v) => !v)}
+                aria-expanded={mobileSearchOpen}
+              >
                 <Search className="h-5 w-5" />
                 <span className="sr-only">Search</span>
               </Button>
@@ -318,6 +325,38 @@ export function Header({ categories = [] }: HeaderProps) {
           </div>
         </div>
       </div>
+
+      {/* Mobile Search Bar */}
+      {mobileSearchOpen && (
+        <div className="border-b border-border bg-card px-4 py-3 lg:hidden">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search products, brands..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onKeyDown={(e) => {
+                handleSearchKeyDown(e)
+                if (e.key === "Enter") setMobileSearchOpen(false)
+              }}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+              autoFocus
+              className="h-11 w-full rounded-full border-2 border-muted bg-muted/30 pl-11 pr-4 text-sm transition-all focus:border-primary focus:bg-background"
+            />
+            {showDropdown && (
+              <AutocompleteDropdown
+                suggestions={suggestions}
+                onSelect={(s) => {
+                  handleSelectSuggestion(s)
+                  setMobileSearchOpen(false)
+                }}
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Main Navigation */}
       <nav className="hidden border-b border-border/50 bg-card lg:block">

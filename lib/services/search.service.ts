@@ -22,8 +22,10 @@ async function search(input: SearchInput) {
     .trim()
 
   if (!sanitized) {
-    const { sort: _sort, ...rest } = input
-    return ProductService.findMany({ ...rest, page, limit })
+    const { sort, query: _query, ...rest } = input
+    const mappedSort =
+      sort === "relevance" || sort === undefined ? "newest" : sort
+    return ProductService.findMany({ ...rest, page, limit, sort: mappedSort })
   }
 
   const sort = input.sort ?? "relevance"
