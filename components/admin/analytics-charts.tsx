@@ -14,6 +14,7 @@ import {
   Legend,
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { formatPrice } from "@/lib/utils"
 
 const COLORS = ["#16a34a", "#4ade80", "#86efac", "#bbf7d0", "#f0fdf4", "#166534", "#15803d", "#22c55e"]
 
@@ -64,7 +65,7 @@ export function AnalyticsCharts({ topProducts, categoryData, funnelData }: Analy
                   <tr key={p.name}>
                     <td className="py-2 text-gray-700 max-w-[180px] truncate">{p.name}</td>
                     <td className="py-2 text-right text-gray-500">{p.unitsSold}</td>
-                    <td className="py-2 text-right font-medium">€{p.revenue.toFixed(2)}</td>
+                    <td className="py-2 text-right font-medium">{formatPrice(p.revenue)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -100,7 +101,7 @@ export function AnalyticsCharts({ topProducts, categoryData, funnelData }: Analy
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => `€${value.toFixed(2)}`} />
+                <Tooltip formatter={(value: number) => formatPrice(value)} />
               </PieChart>
             </ResponsiveContainer>
           )}

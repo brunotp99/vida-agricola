@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { useState, useTransition } from "react"
+import { formatPrice } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -116,7 +117,7 @@ function AdjustStockDialog({ variant }: AdjustDialogProps) {
                     <span className={log.delta > 0 ? "text-green-600" : "text-red-600"}>
                       {log.delta > 0 ? "+" : ""}{log.delta}
                     </span>
-                    <span>{new Date(log.createdAt).toLocaleDateString()}</span>
+                    <span>{new Date(log.createdAt).toLocaleDateString("en-GB")}</span>
                   </div>
                 ))}
               </div>
@@ -190,7 +191,7 @@ export function InventoryClient({ variants, total, page, pageSize }: InventoryCl
     {
       key: "price",
       label: "Price",
-      render: (v: Variant) => <span className="text-sm">€{v.price.toFixed(2)}</span>,
+      render: (v: Variant) => <span className="text-sm">{formatPrice(v.price)}</span>,
     },
     {
       key: "actions",

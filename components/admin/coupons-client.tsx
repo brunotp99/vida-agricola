@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { formatPrice } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -273,17 +274,17 @@ export function CouponsClient({ coupons }: CouponsClientProps) {
                 <td className="p-4">
                   {coupon.type === "percentage"
                     ? `${coupon.value}%`
-                    : `€${coupon.value.toFixed(2)}`}
+                    : formatPrice(coupon.value)}
                 </td>
                 <td className="p-4 text-gray-500">
-                  {coupon.minOrderAmount ? `€${coupon.minOrderAmount.toFixed(2)}` : "—"}
+                  {coupon.minOrderAmount ? formatPrice(coupon.minOrderAmount) : "—"}
                 </td>
                 <td className="p-4 text-gray-500">
                   {coupon.usedCount}
                   {coupon.maxUses ? `/${coupon.maxUses}` : ""}
                 </td>
                 <td className="p-4 text-gray-500">
-                  {coupon.expiresAt ? new Date(coupon.expiresAt).toLocaleDateString() : "Never"}
+                  {coupon.expiresAt ? new Date(coupon.expiresAt).toLocaleDateString("en-GB") : "Never"}
                 </td>
                 <td className="p-4">
                   <ActiveToggle coupon={coupon} />

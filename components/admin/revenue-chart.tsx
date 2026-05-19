@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { formatPrice } from "@/lib/utils"
 
 interface RevenueDataPoint {
   date: string
@@ -42,10 +43,10 @@ export function RevenueChart({ data, title = "Revenue Over Time" }: RevenueChart
               tick={{ fontSize: 12 }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v) => `€${v}`}
+              tickFormatter={(v) => `$${v}`}
             />
             <Tooltip
-              formatter={(value: number) => [`€${value.toFixed(2)}`, "Revenue"]}
+              formatter={(value: number) => [formatPrice(value), "Revenue"]}
               contentStyle={{
                 backgroundColor: "white",
                 border: "1px solid #e5e7eb",

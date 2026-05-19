@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, Fragment } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -274,8 +274,8 @@ export function CategoriesClient({ categories, parents, childrenByParent }: Cate
           </thead>
           <tbody className="divide-y">
             {parents.map((parent) => (
-              <>
-                <tr key={parent.id} className="hover:bg-gray-50 font-medium">
+              <Fragment key={parent.id}>
+                <tr className="hover:bg-gray-50 font-medium">
                   <td className="p-4 text-gray-900">{parent.name}</td>
                   <td className="p-4 font-mono text-xs text-gray-500">{parent.slug}</td>
                   <td className="p-4">
@@ -354,7 +354,7 @@ export function CategoriesClient({ categories, parents, childrenByParent }: Cate
                     </td>
                   </tr>
                 ))}
-              </>
+              </Fragment>
             ))}
             {categories.length === 0 && (
               <tr>

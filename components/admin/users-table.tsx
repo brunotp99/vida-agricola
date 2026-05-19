@@ -139,7 +139,7 @@ export function UsersTable({ users, total, page, pageSize, currentUserId }: User
       key: "createdAt",
       label: "Joined",
       render: (u: User) => (
-        <span className="text-sm text-gray-500">{new Date(u.createdAt).toLocaleDateString()}</span>
+        <span className="text-sm text-gray-500">{new Date(u.createdAt).toLocaleDateString("en-GB")}</span>
       ),
     },
     {

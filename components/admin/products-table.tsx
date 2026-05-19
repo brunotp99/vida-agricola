@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
+import { formatPrice } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -165,7 +166,7 @@ export function ProductsTable({
     {
       key: "price",
       label: "Price",
-      render: (p: Product) => <span className="text-sm font-medium">€{p.price.toFixed(2)}</span>,
+      render: (p: Product) => <span className="text-sm font-medium">{formatPrice(p.price)}</span>,
     },
     {
       key: "stock",
@@ -192,7 +193,7 @@ export function ProductsTable({
       label: "Created",
       render: (p: Product) => (
         <span className="text-sm text-gray-500">
-          {new Date(p.createdAt).toLocaleDateString()}
+          {new Date(p.createdAt).toLocaleDateString("en-GB")}
         </span>
       ),
     },

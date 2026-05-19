@@ -5,6 +5,7 @@ import { RevenueChart } from "@/components/admin/revenue-chart"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, ShoppingCart, Users, AlertTriangle } from "lucide-react"
+import { formatPrice } from "@/lib/utils"
 
 const getDashboardStats = unstable_cache(
   async () => {
@@ -109,7 +110,7 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Total Revenue"
-          value={`€${stats.totalRevenue.toLocaleString("en-IE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          value={formatPrice(stats.totalRevenue)}
           description="All time (confirmed orders)"
           icon={DollarSign}
         />
@@ -171,11 +172,11 @@ export default async function AdminDashboardPage() {
                       </Badge>
                     </td>
                     <td className="py-3 text-right font-medium">
-                      €{Number(order.total).toFixed(2)}
+                      {formatPrice(Number(order.total))}
                     </td>
                     <td className="py-3 text-right text-gray-500">{order._count.items}</td>
                     <td className="py-3 text-right text-gray-400">
-                      {order.createdAt.toLocaleDateString()}
+                      {order.createdAt.toLocaleDateString("en-GB")}
                     </td>
                   </tr>
                 ))}
