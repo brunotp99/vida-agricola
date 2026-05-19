@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { authClient } from "@/lib/auth-client"
 import { LoginSchema, type LoginInput } from "@/lib/validations/auth.schema"
+import { mergeGuestCartAction } from "@/lib/actions/cart"
 
 export function LoginForm() {
   const router = useRouter()
@@ -35,6 +36,7 @@ export function LoginForm() {
     if (result.error) {
       toast.error(result.error.message || "Invalid email or password")
     } else {
+      await mergeGuestCartAction()
       router.push(redirect)
       router.refresh()
     }

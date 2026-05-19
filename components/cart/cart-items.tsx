@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { formatPrice } from "@/lib/utils"
-import { updateCartItemAction, removeFromCartAction } from "@/lib/actions/cart"
+import { updateCartItemAction, removeFromCartAction, applyCouponAction } from "@/lib/actions/cart"
 
 type CartItem = {
   id: string
@@ -42,7 +42,11 @@ interface CartItemsProps {
 
 export function CartItems({ cart }: CartItemsProps) {
   const [couponCode, setCouponCode] = useState("")
-  const [couponApplied, setCouponApplied] = useState(false)
+  const [couponData, setCouponData] = useState<{ discountAmount: number; code: string } | null>(
+    null,
+  )
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [couponPending, startCouponTransition] = useTransition()
   const [isPending, startTransition] = useTransition()
 
   const items = cart?.items ?? []
@@ -72,9 +76,22 @@ export function CartItems({ cart }: CartItemsProps) {
     const price = item.variant != null ? toNum(item.variant.price) : toNum(item.product.price)
     return sum + price * item.quantity
   }, 0)
-  const discount = couponApplied ? subtotal * 0.1 : 0
+  const discount = couponData?.discountAmount ?? 0
   const shipping = subtotal > 99 ? 0 : 9.99
   const total = subtotal - discount + shipping
+
+  function handleApplyCoupon() {
+    setCouponError(null)
+    startCouponTransition(async () => {
+      const result = await applyCouponAction(couponCode, subtotal)
+      if (result.success && result.data) {
+        setCouponData({ discountAmount: result.data.discountAmount, code: result.data.code })
+      } else if (!result.success) {
+        setCouponData(null)
+        setCouponError(result.error ?? "Failed to apply coupon")
+      }
+    })
+  }
 
   if (items.length === 0) {
     return (
@@ -209,24 +226,40 @@ export function CartItems({ cart }: CartItemsProps) {
               <Input
                 placeholder="Coupon code"
                 value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                className="flex-1"
-              />
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (couponCode.toLowerCase() === "welcome15") {
-                    setCouponApplied(true)
-                  }
+                onChange={(e) => {
+                  setCouponCode(e.target.value)
+                  setCouponError(null)
                 }}
-              >
-                <Tag className="mr-2 h-4 w-4" />
-                Apply
-              </Button>
+                className="flex-1"
+                disabled={!!couponData}
+              />
+              {couponData ? (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setCouponData(null)
+                    setCouponCode("")
+                  }}
+                >
+                  Remove
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={handleApplyCoupon}
+                  disabled={couponPending || !couponCode.trim()}
+                >
+                  <Tag className="mr-2 h-4 w-4" />
+                  {couponPending ? "..." : "Apply"}
+                </Button>
+              )}
             </div>
-            {couponApplied && (
-              <p className="text-sm text-primary">Coupon WELCOME15 applied! 10% discount</p>
+            {couponData && (
+              <p className="text-sm text-primary">
+                Coupon {couponData.code} applied! -{formatPrice(couponData.discountAmount)}
+              </p>
             )}
+            {couponError && <p className="text-sm text-destructive">{couponError}</p>}
 
             <Separator />
 
