@@ -29,15 +29,23 @@ import {
 import type { ProductDetail, SerializedProductCard } from "@/lib/services/product.service"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
 import { ProductCard } from "@/components/product-card"
+import { ReviewForm } from "@/components/account/review-form"
+import { authClient } from "@/lib/auth-client"
 
 interface ProductDetailProps {
   product: ProductDetail
   relatedProducts: SerializedProductCard[]
+  canReview?: boolean
 }
 
-export function ProductDetailComponent({ product, relatedProducts }: ProductDetailProps) {
+export function ProductDetailComponent({
+  product,
+  relatedProducts,
+  canReview = false,
+}: ProductDetailProps) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
+  const { data: session } = authClient.useSession()
 
   function toNum(val: unknown): number {
     if (typeof val === "number") return val
@@ -366,9 +374,26 @@ export function ProductDetailComponent({ product, relatedProducts }: ProductDeta
                     </div>
                   ))
                 ) : (
-                  <p className="text-muted-foreground">No reviews yet.</p>
+                  <p className="text-muted-foreground">No reviews yet. Be the first to review!</p>
                 )}
-                <Button variant="outline">Write a Review</Button>
+
+                {/* Review form or CTA */}
+                {session ? (
+                  canReview ? (
+                    <ReviewForm productId={product.id} productSlug={product.slug} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Purchase this product to leave a review.
+                    </p>
+                  )
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    <Link href="/login" className="text-primary underline">
+                      Sign in
+                    </Link>{" "}
+                    to leave a review.
+                  </p>
+                )}
               </div>
             </TabsContent>
             <TabsContent value="shipping" className="mt-6">

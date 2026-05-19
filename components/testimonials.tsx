@@ -1,10 +1,38 @@
-'use client'
+"use client"
 
-import Image from 'next/image'
-import { motion } from 'framer-motion'
-import { Star, Quote } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
-import { testimonials } from '@/lib/data'
+import Image from "next/image"
+import { motion } from "framer-motion"
+import { Star, Quote } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+const testimonials = [
+  {
+    id: "1",
+    name: "Carlos Rodriguez",
+    role: "Poultry Farmer",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
+    content:
+      "Vida Agrícola has transformed my farm operations. The quality of their feed products is exceptional, and my egg production has increased by 30% since switching to their premium layer feed.",
+    rating: 5,
+  },
+  {
+    id: "2",
+    name: "Maria Santos",
+    role: "Dairy Farm Owner",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
+    content:
+      "The customer service is outstanding! They helped me choose the right supplements for my cattle, and the delivery was prompt. I highly recommend Vida Agrícola to all farmers.",
+    rating: 5,
+  },
+  {
+    id: "3",
+    name: "João Silva",
+    role: "Small-Scale Farmer",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100",
+    content:
+      "Excellent prices and top-notch quality. I've been buying from Vida Agrícola for 3 years now, and they never disappoint. Their equipment is durable and worth every penny.",
+    rating: 5,
+  },
+]
 
 export function Testimonials() {
   return (
@@ -31,9 +59,7 @@ export function Testimonials() {
               <Card className="h-full border-border bg-card">
                 <CardContent className="p-6">
                   <Quote className="mb-4 h-8 w-8 text-primary/30" />
-                  <p className="mb-6 text-foreground">
-                    &ldquo;{testimonial.content}&rdquo;
-                  </p>
+                  <p className="mb-6 text-foreground">&ldquo;{testimonial.content}&rdquo;</p>
                   <div className="flex items-center gap-4">
                     <Image
                       src={testimonial.image}
@@ -43,20 +69,13 @@ export function Testimonials() {
                       className="rounded-full"
                     />
                     <div>
-                      <p className="font-semibold text-foreground">
-                        {testimonial.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {testimonial.role}
-                      </p>
+                      <p className="font-semibold text-foreground">{testimonial.name}</p>
+                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                     </div>
                   </div>
                   <div className="mt-4 flex gap-0.5">
                     {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 fill-secondary text-secondary"
-                      />
+                      <Star key={i} className="h-4 w-4 fill-secondary text-secondary" />
                     ))}
                   </div>
                 </CardContent>

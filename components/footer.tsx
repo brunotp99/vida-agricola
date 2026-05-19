@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import Image from 'next/image'
+import Link from "next/link"
+import Image from "next/image"
 import {
   Facebook,
   Twitter,
@@ -12,12 +12,13 @@ import {
   Truck,
   Shield,
   RotateCcw,
-} from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { categories } from '@/lib/data'
+} from "lucide-react"
+import { CategoryService } from "@/lib/services/category.service"
+import { FooterNewsletterForm } from "./footer-newsletter-form"
 
-export function Footer() {
+export async function Footer() {
+  const categories = await CategoryService.findWithSubcategories()
+
   return (
     <footer className="bg-accent text-accent-foreground">
       {/* Trust Badges */}
@@ -77,8 +78,8 @@ export function Footer() {
               className="mb-4 h-12 w-auto brightness-0 invert"
             />
             <p className="mb-6 max-w-sm text-sm opacity-80">
-              Your trusted partner in agricultural excellence. We provide premium quality
-              products for farmers, livestock owners, and agricultural businesses.
+              Your trusted partner in agricultural excellence. We provide premium quality products
+              for farmers, livestock owners, and agricultural businesses.
             </p>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm">
@@ -151,16 +152,7 @@ export function Footer() {
             <p className="mb-4 text-sm opacity-80">
               Subscribe to receive updates, access to exclusive deals, and more.
             </p>
-            <div className="space-y-3">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="border-accent-foreground/20 bg-accent-foreground/10 text-accent-foreground placeholder:text-accent-foreground/50"
-              />
-              <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                Subscribe
-              </Button>
-            </div>
+            <FooterNewsletterForm />
           </div>
         </div>
       </div>

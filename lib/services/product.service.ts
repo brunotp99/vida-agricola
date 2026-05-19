@@ -10,6 +10,7 @@ export type FindManyOptions = {
   minRating?: number
   inStock?: boolean
   featured?: boolean
+  onSale?: boolean
   sort?: "price-asc" | "price-desc" | "newest" | "rating" | "popular"
   page?: number
   limit?: number
@@ -58,6 +59,7 @@ async function findMany(options: FindManyOptions = {}) {
     minRating,
     inStock,
     featured,
+    onSale,
     sort = "newest",
     page = 1,
     limit = 12,
@@ -80,6 +82,9 @@ async function findMany(options: FindManyOptions = {}) {
     ...(inStock && { variants: { some: { stock: { gt: 0 } } } }),
     ...(minRating !== undefined && {
       reviews: { some: { rating: { gte: minRating } } },
+    }),
+    ...(onSale && {
+      OR: [{ flashDeal: true }, { compareAtPrice: { not: null } }],
     }),
   }
 

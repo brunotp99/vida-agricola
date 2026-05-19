@@ -1,21 +1,32 @@
 "use client"
 
+import { useOptimistic, useTransition, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Star, Heart, ShoppingCart, Eye } from "lucide-react"
+import { Star, Heart, ShoppingCart, Eye, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { useToast } from "@/hooks/use-toast"
+import { authClient } from "@/lib/auth-client"
+import { addToCartAction } from "@/lib/actions/cart"
+import { toggleWishlistAction } from "@/lib/actions/wishlist"
 import type { SerializedProductCard } from "@/lib/services/product.service"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
 
 interface ProductCardProps {
   product: SerializedProductCard
   variant?: "default" | "compact"
+  isWishlisted?: boolean
 }
 
-export function ProductCard({ product, variant = "default" }: ProductCardProps) {
+export function ProductCard({
+  product,
+  variant = "default",
+  isWishlisted = false,
+}: ProductCardProps) {
   const price = product.price
   const compareAtPrice = product.compareAtPrice
   const hasDiscount = compareAtPrice !== null && compareAtPrice > price
@@ -23,6 +34,44 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
     product.reviews.length > 0
       ? product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length
       : 0
+
+  const { toast } = useToast()
+  const router = useRouter()
+  const { data: session } = authClient.useSession()
+
+  const [isPendingCart, startCartTransition] = useTransition()
+  const [isPendingWishlist, startWishlistTransition] = useTransition()
+  const [optimisticWishlisted, setOptimisticWishlisted] = useOptimistic(isWishlisted)
+
+  function handleAddToCart() {
+    startCartTransition(async () => {
+      const result = await addToCartAction(product.id)
+      if (result.success) {
+        toast({ title: "Added to cart", description: product.name })
+      } else {
+        toast({ title: "Error", description: result.error, variant: "destructive" })
+      }
+    })
+  }
+
+  function handleToggleWishlist() {
+    if (!session) {
+      router.push(`/login?redirect=/product/${product.slug}`)
+      return
+    }
+    startWishlistTransition(async () => {
+      setOptimisticWishlisted(!optimisticWishlisted)
+      const result = await toggleWishlistAction(product.id)
+      if (result.success) {
+        toast({
+          title: result.wishlisted ? "Added to wishlist" : "Removed from wishlist",
+          description: product.name,
+        })
+      } else {
+        toast({ title: "Error", description: result.error, variant: "destructive" })
+      }
+    })
+  }
 
   return (
     <motion.div
@@ -53,17 +102,25 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
           <Button
             size="icon"
             variant="secondary"
+            onClick={handleToggleWishlist}
+            disabled={isPendingWishlist}
             className="h-8 w-8 rounded-full bg-card shadow-md hover:bg-primary hover:text-primary-foreground"
+            aria-label={optimisticWishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
-            <Heart className="h-4 w-4" />
+            <Heart
+              className={`h-4 w-4 transition-colors ${optimisticWishlisted ? "fill-destructive text-destructive" : ""}`}
+            />
           </Button>
-          <Button
-            size="icon"
-            variant="secondary"
-            className="h-8 w-8 rounded-full bg-card shadow-md hover:bg-primary hover:text-primary-foreground"
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
+          <Link href={`/product/${product.slug}`}>
+            <Button
+              size="icon"
+              variant="secondary"
+              className="h-8 w-8 rounded-full bg-card shadow-md hover:bg-primary hover:text-primary-foreground"
+              aria-label="View product"
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
 
         {/* Image */}
@@ -119,9 +176,17 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
           </div>
 
           {/* Add to Cart */}
-          <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-            <ShoppingCart className="h-4 w-4" />
-            Add to Cart
+          <Button
+            onClick={handleAddToCart}
+            disabled={isPendingCart}
+            className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            {isPendingCart ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ShoppingCart className="h-4 w-4" />
+            )}
+            {isPendingCart ? "Adding..." : "Add to Cart"}
           </Button>
         </CardContent>
       </Card>

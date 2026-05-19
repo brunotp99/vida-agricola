@@ -1,15 +1,15 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  User, 
-  Heart, 
-  MapPin, 
-  Phone, 
+import { useState } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import {
+  ChevronDown,
+  ChevronRight,
+  User,
+  Heart,
+  MapPin,
+  Phone,
   X,
   Home,
   ShoppingBag,
@@ -24,55 +24,52 @@ import {
   Sun,
   Wheat,
   TreeDeciduous,
-  Flower2
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { categories } from '@/lib/data'
+  Flower2,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import type { CategoryTree } from "@/lib/services/category.service"
 
 interface MobileMenuProps {
   onClose: () => void
+  categories?: CategoryTree[]
 }
 
 const mainNavItems = [
-  { label: 'Home', href: '/', icon: Home },
-  { label: 'Products', href: '/products', icon: ShoppingBag, hasSubmenu: true },
-  { label: 'Brands', href: '/brands', icon: Tag },
-  { label: 'Deals', href: '/deals', icon: Tag, highlight: true },
-  { label: 'Blog', href: '/blog', icon: BookOpen },
-  { label: 'About', href: '/about', icon: Info },
-  { label: 'Contact', href: '/contact', icon: Mail },
+  { label: "Home", href: "/", icon: Home },
+  { label: "Products", href: "/products", icon: ShoppingBag, hasSubmenu: true },
+  { label: "Brands", href: "/brands", icon: Tag },
+  { label: "Deals", href: "/deals", icon: Tag, highlight: true },
+  { label: "Blog", href: "/blog", icon: BookOpen },
+  { label: "About", href: "/about", icon: Info },
+  { label: "Contact", href: "/contact", icon: Mail },
 ]
 
 const categoryIcons: Record<string, React.ElementType> = {
-  'seeds-plants': Sprout,
-  'fertilizers': Leaf,
-  'pest-control': Bug,
-  'irrigation': Droplets,
-  'tools-equipment': Sun,
-  'animal-feed': Wheat,
-  'organic': TreeDeciduous,
-  'greenhouse': Flower2,
+  "seeds-plants": Sprout,
+  fertilizers: Leaf,
+  "pest-control": Bug,
+  irrigation: Droplets,
+  "tools-equipment": Sun,
+  "animal-feed": Wheat,
+  organic: TreeDeciduous,
+  greenhouse: Flower2,
 }
 
-export function MobileMenu({ onClose }: MobileMenuProps) {
-  const [openSections, setOpenSections] = useState<string[]>(['products'])
+export function MobileMenu({ onClose, categories = [] }: MobileMenuProps) {
+  const [openSections, setOpenSections] = useState<string[]>(["products"])
   const [expandedCategories, setExpandedCategories] = useState<string[]>([])
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) =>
-      prev.includes(section)
-        ? prev.filter((s) => s !== section)
-        : [...prev, section]
+      prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section],
     )
   }
 
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
+      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId],
     )
   }
 
@@ -124,8 +121,8 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
                 return (
                   <Collapsible
                     key={item.label}
-                    open={openSections.includes('products')}
-                    onOpenChange={() => toggleSection('products')}
+                    open={openSections.includes("products")}
+                    onOpenChange={() => toggleSection("products")}
                   >
                     <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted">
                       <div className="flex items-center gap-3">
@@ -134,7 +131,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
                       </div>
                       <ChevronDown
                         className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
-                          openSections.includes('products') ? 'rotate-180' : ''
+                          openSections.includes("products") ? "rotate-180" : ""
                         }`}
                       />
                     </CollapsibleTrigger>
@@ -165,13 +162,13 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
                                 </div>
                                 <ChevronDown
                                   className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${
-                                    expandedCategories.includes(category.id) ? 'rotate-180' : ''
+                                    expandedCategories.includes(category.id) ? "rotate-180" : ""
                                   }`}
                                 />
                               </CollapsibleTrigger>
                               <CollapsibleContent>
                                 <div className="ml-3 space-y-0.5 border-l border-border/50 pl-3 py-1">
-                                  {category.subcategories.map((sub) => (
+                                  {category.children.map((sub) => (
                                     <Link
                                       key={sub.id}
                                       href={`/category/${category.slug}/${sub.slug}`}
@@ -206,10 +203,12 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
                   href={item.href}
                   onClick={onClose}
                   className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-muted ${
-                    item.highlight ? 'text-secondary' : 'text-foreground'
+                    item.highlight ? "text-secondary" : "text-foreground"
                   }`}
                 >
-                  <Icon className={`h-4 w-4 ${item.highlight ? 'text-secondary' : 'text-primary'}`} />
+                  <Icon
+                    className={`h-4 w-4 ${item.highlight ? "text-secondary" : "text-primary"}`}
+                  />
                   {item.label}
                 </Link>
               )
@@ -227,11 +226,18 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
       {/* Footer */}
       <div className="border-t border-border p-4">
         <div className="space-y-3 text-sm text-muted-foreground">
-          <a href="tel:+18001234567" className="flex items-center gap-3 transition-colors hover:text-foreground">
+          <a
+            href="tel:+18001234567"
+            className="flex items-center gap-3 transition-colors hover:text-foreground"
+          >
             <Phone className="h-4 w-4" />
             <span>+1 (800) 123-4567</span>
           </a>
-          <Link href="/stores" onClick={onClose} className="flex items-center gap-3 transition-colors hover:text-foreground">
+          <Link
+            href="/stores"
+            onClick={onClose}
+            className="flex items-center gap-3 transition-colors hover:text-foreground"
+          >
             <MapPin className="h-4 w-4" />
             <span>Find a Store</span>
           </Link>

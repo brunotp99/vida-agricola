@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MegaMenu } from "./mega-menu"
 import { MobileMenu } from "./mobile-menu"
+import { AutocompleteDropdown } from "./search/autocomplete-dropdown"
 import { authClient } from "@/lib/auth-client"
 import type { CategoryTree } from "@/lib/services/category.service"
 
@@ -52,10 +53,56 @@ interface HeaderProps {
 export function Header({ categories = [] }: HeaderProps) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [showDropdown, setShowDropdown] = useState(false)
   const [megaMenuOpen, setMegaMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
   const { data: session, isPending } = authClient.useSession()
+
+  const fetchSuggestions = useCallback(async (q: string) => {
+    if (!q.trim()) {
+      setSuggestions([])
+      return
+    }
+    try {
+      const res = await fetch(`/api/search/autocomplete?q=${encodeURIComponent(q)}`)
+      const data = await res.json()
+      setSuggestions(data.slice(0, 8))
+    } catch {
+      setSuggestions([])
+    }
+  }, [])
+
+  function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const q = e.target.value
+    setSearchQuery(q)
+    setShowDropdown(true)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => fetchSuggestions(q), 200)
+  }
+
+  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      setShowDropdown(false)
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+    if (e.key === "Escape") setShowDropdown(false)
+  }
+
+  function handleSelectSuggestion(suggestion: string) {
+    setSearchQuery(suggestion)
+    setShowDropdown(false)
+    router.push(`/search?q=${encodeURIComponent(suggestion)}`)
+  }
+
+  useEffect(
+    () => () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    },
+    [],
+  )
 
   const cartItemCount = 0
   const wishlistCount = 0
@@ -129,7 +176,7 @@ export function Header({ categories = [] }: HeaderProps) {
               </SheetTrigger>
               <SheetContent side="left" className="w-[320px] p-0">
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <MobileMenu onClose={() => setMobileMenuOpen(false)} />
+                <MobileMenu onClose={() => setMobileMenuOpen(false)} categories={categories} />
               </SheetContent>
             </Sheet>
 
@@ -156,9 +203,18 @@ export function Header({ categories = [] }: HeaderProps) {
                   type="search"
                   placeholder="Search products, brands..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchChange}
+                  onKeyDown={handleSearchKeyDown}
+                  onFocus={() => setShowDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
                   className="h-11 w-full rounded-full border-2 border-muted bg-muted/30 pl-11 pr-4 text-sm transition-all focus:border-primary focus:bg-background"
                 />
+                {showDropdown && (
+                  <AutocompleteDropdown
+                    suggestions={suggestions}
+                    onSelect={handleSelectSuggestion}
+                  />
+                )}
               </div>
             </div>
 
