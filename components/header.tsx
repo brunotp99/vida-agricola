@@ -5,6 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { AnimatePresence } from "framer-motion"
+import { usePathname } from "next/navigation"
 import {
   Search,
   User,
@@ -111,6 +112,8 @@ export function Header({ categories = [] }: HeaderProps) {
 
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
+
+  const pathname = usePathname()
 
   const cartItemCount = 0
   const wishlistCount = 0
@@ -372,32 +375,37 @@ export function Header({ categories = [] }: HeaderProps) {
       <nav className="hidden border-b border-border/50 bg-card lg:block">
         <div className="container relative mx-auto px-4" onMouseLeave={handleMouseLeave}>
           <ul className="flex items-center">
-            {mainNavItems.map((item) => (
-              <li key={item.labelKey} onMouseEnter={item.hasMegaMenu ? handleMouseEnter : undefined}>
-                <Link
-                  href={item.href}
-                  className={`relative flex items-center gap-1.5 px-5 py-4 text-sm font-medium transition-colors ${
-                    item.highlight
-                      ? "text-secondary hover:text-secondary/80"
-                      : "text-foreground hover:text-primary"
-                  }`}
-                >
-                  {tNav(item.labelKey as Parameters<typeof tNav>[0])}
-                  {item.hasMegaMenu && (
-                    <svg
-                      className={`h-3.5 w-3.5 transition-transform duration-200 ${megaMenuOpen ? "rotate-180" : ""}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  )}
-                  <span className="absolute bottom-0 left-5 right-5 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-200 group-hover:scale-x-100" />
-                </Link>
-              </li>
-            ))}
+            {mainNavItems.map((item) => {
+              const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)
+              return (
+                <li key={item.labelKey} className="group" onMouseEnter={item.hasMegaMenu ? handleMouseEnter : undefined}>
+                  <Link
+                    href={item.href}
+                    className={`relative flex items-center gap-1.5 px-5 py-4 text-sm font-medium transition-colors ${
+                      item.highlight
+                        ? "text-secondary hover:text-secondary/80"
+                        : isActive
+                        ? "text-primary"
+                        : "text-foreground hover:text-primary"
+                    }`}
+                  >
+                    {tNav(item.labelKey as Parameters<typeof tNav>[0])}
+                    {item.hasMegaMenu && (
+                      <svg
+                        className={`h-3.5 w-3.5 transition-transform duration-200 ${megaMenuOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    )}
+                    <span className={`absolute bottom-0 left-5 right-5 h-0.5 origin-left bg-primary transition-transform duration-200 ${isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
 
           <AnimatePresence>

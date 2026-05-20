@@ -19,10 +19,10 @@ export async function BrandsCarousel() {
             <Link
               key={brand.id}
               href={`/brand/${brand.slug}`}
-              className="block rounded-lg bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-1"
+              className="group block rounded-lg border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-md hover:-translate-y-1"
             >
               <div className="flex h-12 items-center justify-center">
-                <span className="text-lg font-bold text-muted-foreground transition-colors hover:text-foreground">
+                <span className="text-lg font-bold text-muted-foreground transition-colors group-hover:text-foreground">
                   {brand.name}
                 </span>
               </div>

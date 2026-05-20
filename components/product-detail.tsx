@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import Link from "next/link"
 import {
   Star,
@@ -171,7 +173,11 @@ export function ProductDetailComponent({
             </div>
 
             {/* Description */}
-            <p className="text-muted-foreground">{product.description}</p>
+            {product.description && (
+              <div className="prose prose-sm max-w-none text-muted-foreground prose-headings:text-foreground prose-strong:text-foreground prose-a:text-primary line-clamp-4">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{product.description}</ReactMarkdown>
+              </div>
+            )}
 
             {/* Stock Status */}
             <div className="flex items-center gap-2">
@@ -286,15 +292,12 @@ export function ProductDetailComponent({
               </TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="mt-6">
-              <div className="prose max-w-none text-muted-foreground">
-                <p>{product.description}</p>
-                <h3 className="mt-6 text-lg font-semibold text-foreground">{t("keyFeatures")}</h3>
-                <ul className="mt-4 space-y-2">
-                  <li>{t("feature1")}</li>
-                  <li>{t("feature2")}</li>
-                  <li>{t("feature3")}</li>
-                  <li>{t("feature4")}</li>
-                </ul>
+              <div className="prose prose-sm max-w-none text-muted-foreground prose-headings:text-foreground prose-strong:text-foreground prose-a:text-primary">
+                {product.description ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{product.description}</ReactMarkdown>
+                ) : (
+                  <p className="text-muted-foreground italic">No description available.</p>
+                )}
               </div>
             </TabsContent>
             <TabsContent value="specifications" className="mt-6">

@@ -226,7 +226,7 @@ export function AccountClient({
                             <Heart className="h-6 w-6 text-secondary" />
                           </div>
                           <div>
-                            <p className="text-2xl font-bold text-foreground">—</p>
+                            <p className="text-2xl font-bold text-foreground">0</p>
                             <p className="text-sm text-muted-foreground">Wishlist Items</p>
                           </div>
                         </div>

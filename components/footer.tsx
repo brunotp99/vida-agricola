@@ -73,7 +73,7 @@ export async function Footer() {
           {/* Company Info */}
           <div className="lg:col-span-2">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo2-Hjpms2ad6drWedZDir5r0K0ruzWghG.png"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-GpwpwSRanjgVXt8ByFMWwyHcFTNx7O.png"
               alt="Vida Agrícola"
               width={160}
               height={45}
@@ -104,27 +104,27 @@ export async function Footer() {
             <h3 className="mb-4 text-lg font-semibold">{t("quickLinks")}</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/about" className="opacity-80 transition-opacity hover:opacity-100">
+                <Link href="/about" className="opacity-70 transition-all hover:opacity-100 hover:underline underline-offset-2">
                   {t("aboutUs")}
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="opacity-80 transition-opacity hover:opacity-100">
+                <Link href="/contact" className="opacity-70 transition-all hover:opacity-100 hover:underline underline-offset-2">
                   {t("contactUs")}
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="opacity-80 transition-opacity hover:opacity-100">
+                <Link href="/blog" className="opacity-70 transition-all hover:opacity-100 hover:underline underline-offset-2">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="opacity-80 transition-opacity hover:opacity-100">
+                <Link href="/careers" className="opacity-70 transition-all hover:opacity-100 hover:underline underline-offset-2">
                   {t("careers")}
                 </Link>
               </li>
               <li>
-                <Link href="/stores" className="opacity-80 transition-opacity hover:opacity-100">
+                <Link href="/stores" className="opacity-70 transition-all hover:opacity-100 hover:underline underline-offset-2">
                   {t("storeLocator")}
                 </Link>
               </li>
@@ -139,7 +139,7 @@ export async function Footer() {
                 <li key={category.id}>
                   <Link
                     href={`/category/${category.slug}`}
-                    className="opacity-80 transition-opacity hover:opacity-100"
+                    className="opacity-70 transition-all hover:opacity-100 hover:underline underline-offset-2"
                   >
                     {category.name}
                   </Link>

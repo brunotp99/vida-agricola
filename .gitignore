@@ -21,3 +21,6 @@ next-env.d.ts
 tsconfig.tsbuildinfo
 
 /lib/generated/prisma
+
+# User-uploaded images
+/public/uploads/

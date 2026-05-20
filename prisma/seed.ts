@@ -67,9 +67,9 @@ async function main() {
       name: "Clothing & Safety",
       slug: "clothing-safety",
       description: "Protective gear for farm workers",
-      imageUrl: "https://images.unsplash.com/photo-1591085686350-798c0f9faa7f?w=400",
+      imageUrl: "https://images.unsplash.com/photo-1586771106241-f2f2b7ec7ccd?w=400",
       icon: "HardHat",
-      featured: false,
+      featured: true,
       sortOrder: 4,
       children: [
         { name: "Boots", slug: "boots", sortOrder: 1 },
@@ -101,7 +101,7 @@ async function main() {
       description: "Specialized equipment for poultry farming",
       imageUrl: "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400",
       icon: "Bird",
-      featured: false,
+      featured: true,
       sortOrder: 6,
       children: [
         { name: "Egg Incubators", slug: "egg-incubators", sortOrder: 1 },
@@ -116,7 +116,7 @@ async function main() {
   for (const cat of categoryData) {
     const parent = await prisma.category.upsert({
       where: { slug: cat.slug },
-      update: {},
+      update: { featured: cat.featured, imageUrl: cat.imageUrl },
       create: {
         name: cat.name,
         slug: cat.slug,
@@ -262,7 +262,7 @@ async function main() {
       newArrival: true,
       bestSeller: true,
       status: "active" as const,
-      images: ["https://images.unsplash.com/photo-1569428034239-f9565e32e224?w=600"],
+      images: ["https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=600"],
       tags: ["chicks", "starter", "poultry", "growth"],
       specs: {
         "Protein Content": "20%",
@@ -284,7 +284,7 @@ async function main() {
       featured: true,
       flashDeal: true,
       status: "active" as const,
-      images: ["https://images.unsplash.com/photo-1569428034239-f9565e32e224?w=600"],
+      images: ["https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=600"],
       tags: ["incubator", "eggs", "automatic", "poultry"],
       specs: {
         Capacity: "120 eggs",
@@ -346,7 +346,7 @@ async function main() {
       featured: true,
       newArrival: true,
       status: "active" as const,
-      images: ["https://images.unsplash.com/photo-1628595351029-c2bf17511435?w=600"],
+      images: ["https://images.unsplash.com/photo-1584308074741-fdf97db8e2da?w=600"],
       tags: ["vitamins", "poultry", "supplements", "immunity"],
       specs: {
         Volume: "500ml",
@@ -365,7 +365,7 @@ async function main() {
       categorySlug: "veterinary-health",
       brandName: "Cargill",
       status: "active" as const,
-      images: ["https://images.unsplash.com/photo-1628595351029-c2bf17511435?w=600"],
+      images: ["https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=600"],
       tags: ["calcium", "supplements", "dairy", "poultry"],
       specs: {
         "Calcium Content": "38%",
@@ -387,7 +387,7 @@ async function main() {
       featured: true,
       bestSeller: true,
       status: "active" as const,
-      images: ["https://images.unsplash.com/photo-1591085686350-798c0f9faa7f?w=600"],
+      images: ["https://images.unsplash.com/photo-1586771106241-f2f2b7ec7ccd?w=600"],
       tags: ["boots", "safety", "waterproof", "steel-toe"],
       specs: {
         Material: "Natural Rubber",
@@ -407,7 +407,7 @@ async function main() {
       brandName: "Stihl",
       newArrival: true,
       status: "active" as const,
-      images: ["https://images.unsplash.com/photo-1591085686350-798c0f9faa7f?w=600"],
+      images: ["https://images.unsplash.com/photo-1572635163090-f8888d2b5c94?w=600"],
       tags: ["gloves", "leather", "work", "protective"],
       specs: {
         Material: "Cowhide Leather",
@@ -461,7 +461,7 @@ async function main() {
   for (const p of productsData) {
     const product = await prisma.product.upsert({
       where: { slug: p.slug },
-      update: {},
+      update: { status: p.status },
       create: {
         slug: p.slug,
         name: p.name,
@@ -479,13 +479,25 @@ async function main() {
       },
     })
 
-    // images
-    const existingImages = await prisma.productImage.count({ where: { productId: product.id } })
-    if (existingImages === 0) {
-      await prisma.productImage.createMany({
-        data: p.images.map((url, i) => ({ productId: product.id, url, sortOrder: i })),
+    // default variant (ensures product is in-stock)
+    const existingVariants = await prisma.productVariant.count({ where: { productId: product.id } })
+    if (existingVariants === 0) {
+      await prisma.productVariant.create({
+        data: {
+          productId: product.id,
+          name: "Standard",
+          sku: `${p.sku}-STD`,
+          price: p.price,
+          stock: 50,
+        },
       })
     }
+
+    // images (delete + recreate so bad URLs get fixed on re-seed)
+    await prisma.productImage.deleteMany({ where: { productId: product.id } })
+    await prisma.productImage.createMany({
+      data: p.images.map((url, i) => ({ productId: product.id, url, sortOrder: i })),
+    })
 
     // tags
     for (const tag of p.tags) {

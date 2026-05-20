@@ -21,7 +21,7 @@ const promoCards = [
     id: 2,
     title: "New Incubators",
     subtitle: "Latest technology for better hatch rates",
-    image: "https://images.unsplash.com/photo-1569428034239-f9565e32e224?w=600",
+    image: "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=600",
     href: "/category/farm-equipment/incubators",
     color: "bg-accent",
   },
@@ -29,7 +29,7 @@ const promoCards = [
     id: 3,
     title: "Safety First",
     subtitle: "Professional farm boots & gear",
-    image: "https://images.unsplash.com/photo-1591085686350-798c0f9faa7f?w=600",
+    image: "https://images.unsplash.com/photo-1586771106241-f2f2b7ec7ccd?w=600",
     href: "/category/clothing-safety",
     color: "bg-secondary",
   },
@@ -120,7 +120,7 @@ export function NewsletterBanner() {
               <Button
                 type="submit"
                 disabled={isPending}
-                className="h-12 bg-secondary px-8 text-secondary-foreground hover:bg-secondary/90"
+                className="h-12 bg-white px-8 text-primary hover:bg-white/90"
               >
                 {isPending ? "Subscribing..." : "Subscribe"}
               </Button>

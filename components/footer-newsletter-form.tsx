@@ -41,7 +41,7 @@ export function FooterNewsletterForm() {
       <Button
         type="submit"
         disabled={isPending}
-        className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
+        className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
       >
         {isPending ? "..." : t("newsletterButton")}
       </Button>

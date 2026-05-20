@@ -15,7 +15,10 @@ async function requireAdmin() {
 }
 
 const ProductImageSchema = z.object({
-  url: z.string().url("Invalid image URL"),
+  url: z
+    .string()
+    .min(1, "Image URL required")
+    .refine((v) => v.startsWith("/") || /^https?:\/\//.test(v), "Must be a valid URL or uploaded path"),
   alt: z.string().optional(),
   sortOrder: z.number().default(0),
 })
@@ -41,7 +44,11 @@ const ProductFormSchema = z.object({
   description: z.string().optional(),
   sku: z.string().min(3, "SKU must be at least 3 characters"),
   price: z.number().positive("Price must be positive"),
-  compareAtPrice: z.number().positive().optional().nullable(),
+  compareAtPrice: z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? null : Number(v)),
+    z.number().positive().optional().nullable(),
+  ),
+  defaultStock: z.number().int().min(0).default(0),
   categoryId: z.string().optional().nullable(),
   brandId: z.string().optional().nullable(),
   status: z.enum(["draft", "active", "archived"]).default("draft"),
@@ -89,7 +96,10 @@ export async function createProductAction(input: unknown) {
           create: data.images.map((img, i) => ({ ...img, sortOrder: i })),
         },
         variants: {
-          create: data.variants,
+          create:
+            data.variants.length > 0
+              ? data.variants
+              : [{ name: "Standard", sku: `${data.sku}-STD`, price: data.price, stock: data.defaultStock }],
         },
         specifications: {
           create: data.specifications,
@@ -139,7 +149,10 @@ export async function updateProductAction(id: string, input: unknown) {
         },
         variants: {
           deleteMany: {},
-          create: data.variants,
+          create:
+            data.variants.length > 0
+              ? data.variants
+              : [{ name: "Standard", sku: `${data.sku}-STD`, price: data.price, stock: data.defaultStock }],
         },
         specifications: {
           deleteMany: {},
