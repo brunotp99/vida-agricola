@@ -1,47 +1,46 @@
 import { Suspense } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { Home, ChevronRight, Leaf, Users, Award, Truck } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 import { HeaderServer } from "@/components/header-server"
 import { Footer } from "@/components/footer"
 
 export const metadata = { title: "About Us | Vida Agrícola" }
 
-const stats = [
-  { label: "Years of Experience", value: "25+" },
-  { label: "Products in Stock", value: "5,000+" },
-  { label: "Happy Customers", value: "50,000+" },
-  { label: "Partner Brands", value: "200+" },
-]
+export default async function AboutPage() {
+  const t = await getTranslations("about")
+  const tCommon = await getTranslations("common")
 
-const values = [
-  {
-    icon: Leaf,
-    title: "Sustainability",
-    description:
-      "We promote responsible agricultural practices and stock products that respect the land and environment.",
-  },
-  {
-    icon: Users,
-    title: "Community",
-    description:
-      "From family farms to large cooperatives, we serve every type of agricultural producer with the same dedication.",
-  },
-  {
-    icon: Award,
-    title: "Quality",
-    description:
-      "Every product in our catalogue is carefully selected and tested by our team of agronomists.",
-  },
-  {
-    icon: Truck,
-    title: "Reliable Supply",
-    description:
-      "Fast, nationwide delivery so your operation never stops due to missing inputs or equipment.",
-  },
-]
+  const stats = [
+    { label: t("yearsExperience"), value: t("yearsExperienceValue") },
+    { label: t("productsInStock"), value: t("productsInStockValue") },
+    { label: t("happyCustomers"), value: t("happyCustomersValue") },
+    { label: t("partnerBrands"), value: t("partnerBrandsValue") },
+  ]
 
-export default function AboutPage() {
+  const values = [
+    {
+      icon: Leaf,
+      title: t("sustainability"),
+      description: t("sustainabilityDesc"),
+    },
+    {
+      icon: Users,
+      title: t("community"),
+      description: t("communityDesc"),
+    },
+    {
+      icon: Award,
+      title: t("quality"),
+      description: t("qualityDesc"),
+    },
+    {
+      icon: Truck,
+      title: t("reliableSupply"),
+      description: t("reliableSupplyDesc"),
+    },
+  ]
+
   return (
     <div className="flex min-h-screen flex-col">
       <Suspense fallback={null}>
@@ -55,10 +54,10 @@ export default function AboutPage() {
             <nav className="flex items-center gap-2 text-sm text-muted-foreground">
               <Link href="/" className="flex items-center gap-1 hover:text-foreground">
                 <Home className="h-4 w-4" />
-                Home
+                {tCommon("home")}
               </Link>
               <ChevronRight className="h-4 w-4" />
-              <span className="font-medium text-foreground">About Us</span>
+              <span className="font-medium text-foreground">{t("title")}</span>
             </nav>
           </div>
         </div>
@@ -67,12 +66,10 @@ export default function AboutPage() {
         <section className="bg-primary/5 py-20">
           <div className="container mx-auto px-4 text-center">
             <h1 className="mb-4 text-4xl font-bold text-foreground md:text-5xl">
-              About Vida Agrícola
+              {t("title")}
             </h1>
             <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-              For over 25 years we have been the trusted partner of Portugal's agricultural
-              community, supplying quality inputs, equipment, and expertise to help farms of all
-              sizes thrive.
+              {t("subtitle")}
             </p>
           </div>
         </section>
@@ -95,24 +92,11 @@ export default function AboutPage() {
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="mx-auto max-w-3xl">
-              <h2 className="mb-6 text-3xl font-bold text-foreground">Our Story</h2>
+              <h2 className="mb-6 text-3xl font-bold text-foreground">{t("ourStory")}</h2>
               <div className="space-y-4 text-muted-foreground">
-                <p>
-                  Vida Agrícola was founded in 1999 by a family of farmers who understood firsthand
-                  the difficulty of sourcing reliable agricultural supplies in Portugal. What started
-                  as a small local warehouse has grown into one of the country's leading online
-                  agri-input distributors.
-                </p>
-                <p>
-                  Today our team of 150 agronomists, logistics specialists, and customer advisors
-                  works every day to ensure that growers get the right products at the right time —
-                  whether they are tending a few olive trees or running a 500-hectare cereal farm.
-                </p>
-                <p>
-                  We stock everything from seeds, fertilisers, and crop-protection products to
-                  irrigation systems, machinery, and precision-agriculture technology, always
-                  partnering with brands that share our commitment to quality and sustainability.
-                </p>
+                <p>{t("storyP1")}</p>
+                <p>{t("storyP2")}</p>
+                <p>{t("storyP3")}</p>
               </div>
             </div>
           </div>
@@ -121,7 +105,7 @@ export default function AboutPage() {
         {/* Values */}
         <section className="bg-muted/50 py-16">
           <div className="container mx-auto px-4">
-            <h2 className="mb-10 text-center text-3xl font-bold text-foreground">Our Values</h2>
+            <h2 className="mb-10 text-center text-3xl font-bold text-foreground">{t("ourValues")}</h2>
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {values.map((value) => {
                 const Icon = value.icon
@@ -142,15 +126,15 @@ export default function AboutPage() {
         {/* CTA */}
         <section className="py-16 text-center">
           <div className="container mx-auto px-4">
-            <h2 className="mb-4 text-2xl font-bold text-foreground">Ready to shop?</h2>
+            <h2 className="mb-4 text-2xl font-bold text-foreground">{t("readyToShop")}</h2>
             <p className="mb-8 text-muted-foreground">
-              Browse our full catalogue of agricultural products.
+              {t("readyToShopDesc")}
             </p>
             <Link
               href="/search"
               className="inline-flex items-center rounded-md bg-primary px-8 py-3 font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Shop Now
+              {t("shopNow")}
             </Link>
           </div>
         </section>

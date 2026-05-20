@@ -13,11 +13,13 @@ import {
   Shield,
   RotateCcw,
 } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 import { CategoryService } from "@/lib/services/category.service"
 import { FooterNewsletterForm } from "./footer-newsletter-form"
 
 export async function Footer() {
   const categories = await CategoryService.findWithSubcategories()
+  const t = await getTranslations("footer")
 
   return (
     <footer className="bg-accent text-accent-foreground">
@@ -30,8 +32,8 @@ export async function Footer() {
                 <Truck className="h-6 w-6" />
               </div>
               <div>
-                <p className="font-semibold">Free Shipping</p>
-                <p className="text-sm opacity-80">On orders over $99</p>
+                <p className="font-semibold">{t("freeShipping")}</p>
+                <p className="text-sm opacity-80">{t("freeShippingDesc")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -39,8 +41,8 @@ export async function Footer() {
                 <RotateCcw className="h-6 w-6" />
               </div>
               <div>
-                <p className="font-semibold">Easy Returns</p>
-                <p className="text-sm opacity-80">30-day return policy</p>
+                <p className="font-semibold">{t("easyReturns")}</p>
+                <p className="text-sm opacity-80">{t("easyReturnsDesc")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -48,8 +50,8 @@ export async function Footer() {
                 <Shield className="h-6 w-6" />
               </div>
               <div>
-                <p className="font-semibold">Secure Payment</p>
-                <p className="text-sm opacity-80">100% protected</p>
+                <p className="font-semibold">{t("securePayment")}</p>
+                <p className="text-sm opacity-80">{t("securePaymentDesc")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -57,8 +59,8 @@ export async function Footer() {
                 <CreditCard className="h-6 w-6" />
               </div>
               <div>
-                <p className="font-semibold">Flexible Payment</p>
-                <p className="text-sm opacity-80">Pay in installments</p>
+                <p className="font-semibold">{t("flexiblePayment")}</p>
+                <p className="text-sm opacity-80">{t("flexiblePaymentDesc")}</p>
               </div>
             </div>
           </div>
@@ -79,37 +81,36 @@ export async function Footer() {
               className="mb-4 brightness-0 invert"
             />
             <p className="mb-6 max-w-sm text-sm opacity-80">
-              Your trusted partner in agricultural excellence. We provide premium quality products
-              for farmers, livestock owners, and agricultural businesses.
+              {t("tagline")}
             </p>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm">
                 <Phone className="h-4 w-4" />
-                <span>+1 (800) 123-4567</span>
+                <span>{t("phone")}</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Mail className="h-4 w-4" />
-                <span>support@vidaagricola.com</span>
+                <span>{t("email")}</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <MapPin className="h-4 w-4" />
-                <span>123 Farm Road, Agricultural City, AC 12345</span>
+                <span>{t("address")}</span>
               </div>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
+            <h3 className="mb-4 text-lg font-semibold">{t("quickLinks")}</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/about" className="opacity-80 transition-opacity hover:opacity-100">
-                  About Us
+                  {t("aboutUs")}
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="opacity-80 transition-opacity hover:opacity-100">
-                  Contact Us
+                  {t("contactUs")}
                 </Link>
               </li>
               <li>
@@ -119,12 +120,12 @@ export async function Footer() {
               </li>
               <li>
                 <Link href="/careers" className="opacity-80 transition-opacity hover:opacity-100">
-                  Careers
+                  {t("careers")}
                 </Link>
               </li>
               <li>
                 <Link href="/stores" className="opacity-80 transition-opacity hover:opacity-100">
-                  Store Locator
+                  {t("storeLocator")}
                 </Link>
               </li>
             </ul>
@@ -149,9 +150,9 @@ export async function Footer() {
 
           {/* Newsletter */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold">Newsletter</h3>
+            <h3 className="mb-4 text-lg font-semibold">{t("newsletter")}</h3>
             <p className="mb-4 text-sm opacity-80">
-              Subscribe to receive updates, access to exclusive deals, and more.
+              {t("newsletterDesc")}
             </p>
             <FooterNewsletterForm />
           </div>
@@ -163,7 +164,7 @@ export async function Footer() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="text-sm opacity-80">
-              © {new Date().getFullYear()} Vida Agrícola. All rights reserved.
+              © {new Date().getFullYear()} Vida Agrícola. {t("allRightsReserved")}
             </p>
             <div className="flex items-center gap-4">
               <Link href="#" className="opacity-60 transition-opacity hover:opacity-100">
@@ -181,10 +182,10 @@ export async function Footer() {
             </div>
             <div className="flex items-center gap-4 text-sm">
               <Link href="/privacy" className="opacity-80 hover:opacity-100">
-                Privacy Policy
+                {t("privacyPolicy")}
               </Link>
               <Link href="/terms" className="opacity-80 hover:opacity-100">
-                Terms of Service
+                {t("termsOfService")}
               </Link>
             </div>
           </div>

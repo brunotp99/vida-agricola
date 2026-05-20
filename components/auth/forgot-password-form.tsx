@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,6 +14,7 @@ import { authClient } from "@/lib/auth-client"
 import { ForgotPasswordSchema, type ForgotPasswordInput } from "@/lib/validations/auth.schema"
 
 export function ForgotPasswordForm() {
+  const t = useTranslations("auth")
   const [submitted, setSubmitted] = useState(false)
 
   const {
@@ -32,11 +34,11 @@ export function ForgotPasswordForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Reset password</CardTitle>
+        <CardTitle className="text-2xl">{t("resetPassword")}</CardTitle>
         <CardDescription>
           {submitted
             ? "Check your email for a reset link"
-            : "Enter your email and we'll send you a reset link"}
+            : t("resetPasswordDesc")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -52,13 +54,13 @@ export function ForgotPasswordForm() {
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input id="email" type="email" autoComplete="email" {...register("email")} />
               {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Send Reset Link
+              {t("sendResetLink")}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               <Link href="/login" className="font-medium text-primary hover:underline">

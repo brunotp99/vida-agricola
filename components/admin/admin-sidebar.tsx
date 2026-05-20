@@ -15,19 +15,8 @@ import {
   ExternalLink,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
-
-const navLinks = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/products", label: "Products", icon: Package },
-  { href: "/admin/categories", label: "Categories", icon: Tags },
-  { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/inventory", label: "Inventory", icon: Warehouse },
-  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/admin/blog", label: "Blog", icon: FileText },
-  { href: "/admin/coupons", label: "Coupons", icon: Ticket },
-]
 
 interface AdminSidebarProps {
   userName: string
@@ -36,7 +25,20 @@ interface AdminSidebarProps {
 }
 
 export function AdminSidebar({ userName, userEmail, userImage }: AdminSidebarProps) {
+  const t = useTranslations("admin")
   const pathname = usePathname()
+
+  const navLinks = [
+    { href: "/admin", label: t("dashboard"), icon: LayoutDashboard, exact: true },
+    { href: "/admin/products", label: t("products"), icon: Package },
+    { href: "/admin/categories", label: t("categories"), icon: Tags },
+    { href: "/admin/orders", label: t("orders"), icon: ShoppingCart },
+    { href: "/admin/users", label: t("users"), icon: Users },
+    { href: "/admin/inventory", label: t("inventory"), icon: Warehouse },
+    { href: "/admin/analytics", label: t("analytics"), icon: BarChart3 },
+    { href: "/admin/blog", label: t("blog"), icon: FileText },
+    { href: "/admin/coupons", label: t("coupons"), icon: Ticket },
+  ]
 
   function isActive(href: string, exact?: boolean) {
     if (exact) return pathname === href
@@ -57,7 +59,7 @@ export function AdminSidebar({ userName, userEmail, userImage }: AdminSidebarPro
         <Link href="/admin" className="flex items-center gap-2">
           <span className="text-lg font-bold text-green-700">Vida Agrícola</span>
           <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-            Admin
+            {t("adminBadge")}
           </span>
         </Link>
       </div>
@@ -94,7 +96,7 @@ export function AdminSidebar({ userName, userEmail, userImage }: AdminSidebarPro
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
         >
           <ExternalLink className="h-4 w-4" />
-          View Store
+          {t("viewStore")}
         </Link>
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8">

@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
+import { useTranslations } from "next-intl"
 import { authClient } from "@/lib/auth-client"
 import { formatPrice } from "@/lib/utils"
 import { ProfileForm } from "./profile-form"
@@ -49,25 +50,16 @@ type Order = {
 const addresses = [
   {
     id: "1",
-    name: "Home",
+    nameKey: "home" as const,
     address: "123 Farm Road, Agricultural City, AC 12345",
     default: true,
   },
   {
     id: "2",
-    name: "Farm",
+    nameKey: "farm" as const,
     address: "456 Country Lane, Rural Town, RT 67890",
     default: false,
   },
-]
-
-const sidebarItems = [
-  { id: "dashboard", label: "Dashboard", icon: User },
-  { id: "orders", label: "Orders", icon: Package },
-  { id: "wishlist", label: "Wishlist", icon: Heart },
-  { id: "addresses", label: "Addresses", icon: MapPin },
-  { id: "settings", label: "Settings", icon: Settings },
-  { id: "notifications", label: "Notifications", icon: Bell },
 ]
 
 interface AccountClientProps {
@@ -85,8 +77,20 @@ export function AccountClient({
   orders,
   orderTotal,
 }: AccountClientProps) {
+  const t = useTranslations("account")
+  const tCommon = useTranslations("common")
+  const tHeader = useTranslations("header")
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("dashboard")
+
+  const sidebarItems = [
+    { id: "dashboard", label: t("dashboard"), icon: User },
+    { id: "orders", label: t("orders"), icon: Package },
+    { id: "wishlist", label: t("wishlist"), icon: Heart },
+    { id: "addresses", label: t("addresses"), icon: MapPin },
+    { id: "settings", label: t("settings"), icon: Settings },
+    { id: "notifications", label: t("notifications"), icon: Bell },
+  ]
 
   async function handleSignOut() {
     await authClient.signOut()
@@ -132,10 +136,10 @@ export function AccountClient({
             <nav className="flex items-center gap-2 text-sm text-muted-foreground">
               <Link href="/" className="flex items-center gap-1 hover:text-foreground">
                 <Home className="h-4 w-4" />
-                Home
+                {tCommon("home")}
               </Link>
               <ChevronRight className="h-4 w-4" />
-              <span className="font-medium text-foreground">My Account</span>
+              <span className="font-medium text-foreground">{tHeader("myAccount")}</span>
             </nav>
           </div>
         </div>
@@ -185,7 +189,7 @@ export function AccountClient({
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10"
                   >
                     <LogOut className="h-4 w-4" />
-                    Sign Out
+                    {tHeader("signOut")}
                   </button>
                 </CardContent>
               </Card>
@@ -248,7 +252,7 @@ export function AccountClient({
                     <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle>Recent Orders</CardTitle>
                       <Button variant="ghost" size="sm" onClick={() => setActiveTab("orders")}>
-                        View All
+                        {tCommon("viewAll")}
                       </Button>
                     </CardHeader>
                     <CardContent>
@@ -282,7 +286,7 @@ export function AccountClient({
                           ))}
                         </div>
                       ) : (
-                        <p className="text-muted-foreground">No orders yet.</p>
+                        <p className="text-muted-foreground">{t("noOrders")}</p>
                       )}
                     </CardContent>
                   </Card>
@@ -292,7 +296,7 @@ export function AccountClient({
               {/* Orders */}
               {activeTab === "orders" && (
                 <div className="space-y-6">
-                  <h1 className="text-2xl font-bold text-foreground">My Orders</h1>
+                  <h1 className="text-2xl font-bold text-foreground">{t("orders")}</h1>
                   {orders.length > 0 ? (
                     <div className="space-y-4">
                       {orders.map((order) => (
@@ -351,7 +355,7 @@ export function AccountClient({
                                 <Link href={`/account/orders/${order.id}`}>
                                   <Button variant="outline" size="sm" className="gap-2">
                                     <Eye className="h-4 w-4" />
-                                    View Details
+                                    {t("viewOrder")}
                                   </Button>
                                 </Link>
                               </div>
@@ -361,7 +365,7 @@ export function AccountClient({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-muted-foreground">No orders yet.</p>
+                    <p className="text-muted-foreground">{t("noOrders")}</p>
                   )}
                 </div>
               )}
@@ -369,7 +373,7 @@ export function AccountClient({
               {/* Wishlist */}
               {activeTab === "wishlist" && (
                 <div className="space-y-6">
-                  <h1 className="text-2xl font-bold text-foreground">My Wishlist</h1>
+                  <h1 className="text-2xl font-bold text-foreground">{t("wishlist")}</h1>
                   <p className="text-muted-foreground">
                     <Link href="/wishlist" className="text-primary hover:underline">
                       View your full wishlist
@@ -382,7 +386,7 @@ export function AccountClient({
               {activeTab === "addresses" && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold text-foreground">My Addresses</h1>
+                    <h1 className="text-2xl font-bold text-foreground">{t("addresses")}</h1>
                     <Button className="gap-2 bg-primary text-primary-foreground">
                       <Plus className="h-4 w-4" />
                       Add Address
@@ -396,7 +400,7 @@ export function AccountClient({
                       >
                         <CardContent className="p-6">
                           <div className="mb-2 flex items-center justify-between">
-                            <h3 className="font-semibold text-foreground">{address.name}</h3>
+                            <h3 className="font-semibold text-foreground">{t(address.nameKey)}</h3>
                             {address.default && (
                               <Badge className="bg-primary text-primary-foreground">Default</Badge>
                             )}
@@ -405,7 +409,7 @@ export function AccountClient({
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm" className="gap-2">
                               <Edit className="h-3 w-3" />
-                              Edit
+                              {tCommon("edit")}
                             </Button>
                             {!address.default && (
                               <Button variant="outline" size="sm">
@@ -423,7 +427,7 @@ export function AccountClient({
               {/* Settings */}
               {activeTab === "settings" && (
                 <div className="space-y-6">
-                  <h1 className="text-2xl font-bold text-foreground">Account Settings</h1>
+                  <h1 className="text-2xl font-bold text-foreground">{t("settings")}</h1>
                   <ProfileForm name={userName} email={userEmail} />
                   <PasswordForm />
                 </div>
@@ -432,7 +436,7 @@ export function AccountClient({
               {/* Notifications */}
               {activeTab === "notifications" && (
                 <div className="space-y-6">
-                  <h1 className="text-2xl font-bold text-foreground">Notification Settings</h1>
+                  <h1 className="text-2xl font-bold text-foreground">{t("notifications")}</h1>
                   <Card className="border-border">
                     <CardContent className="p-6">
                       <div className="space-y-6">

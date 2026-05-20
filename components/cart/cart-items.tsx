@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { useTranslations } from "next-intl"
 import { formatPrice } from "@/lib/utils"
 import { updateCartItemAction, removeFromCartAction, applyCouponAction } from "@/lib/actions/cart"
 
@@ -41,6 +42,7 @@ interface CartItemsProps {
 }
 
 export function CartItems({ cart }: CartItemsProps) {
+  const t = useTranslations("cart")
   const [couponCode, setCouponCode] = useState("")
   const [couponData, setCouponData] = useState<{ discountAmount: number; code: string } | null>(
     null,
@@ -97,13 +99,13 @@ export function CartItems({ cart }: CartItemsProps) {
     return (
       <div className="py-16 text-center">
         <ShoppingBag className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
-        <h2 className="mb-2 text-2xl font-semibold text-foreground">Your cart is empty</h2>
+        <h2 className="mb-2 text-2xl font-semibold text-foreground">{t("empty")}</h2>
         <p className="mb-8 text-muted-foreground">
-          Looks like you haven&apos;t added any items yet.
+          {t("emptyDesc")}
         </p>
         <Link href="/">
           <Button className="gap-2 bg-primary text-primary-foreground">
-            Start Shopping
+            {t("continueShopping")}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </Link>
@@ -218,13 +220,13 @@ export function CartItems({ cart }: CartItemsProps) {
       <div className="lg:col-span-1">
         <Card className="sticky top-24 border-border">
           <CardHeader>
-            <CardTitle>Order Summary</CardTitle>
+            <CardTitle>{t("orderSummary")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Coupon */}
             <div className="flex gap-2">
               <Input
-                placeholder="Coupon code"
+                placeholder={t("coupon")}
                 value={couponCode}
                 onChange={(e) => {
                   setCouponCode(e.target.value)
@@ -250,7 +252,7 @@ export function CartItems({ cart }: CartItemsProps) {
                   disabled={couponPending || !couponCode.trim()}
                 >
                   <Tag className="mr-2 h-4 w-4" />
-                  {couponPending ? "..." : "Apply"}
+                  {couponPending ? "..." : t("applyCoupon")}
                 </Button>
               )}
             </div>
@@ -266,20 +268,20 @@ export function CartItems({ cart }: CartItemsProps) {
             {/* Totals */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{t("subtotal")}</span>
                 <span className="text-foreground">{formatPrice(subtotal)}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Discount</span>
+                  <span className="text-muted-foreground">{t("discount")}</span>
                   <span className="text-primary">-{formatPrice(discount)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Shipping</span>
+                <span className="text-muted-foreground">{t("shipping")}</span>
                 <span className="text-foreground">
                   {shipping === 0 ? (
-                    <span className="text-primary">Free</span>
+                    <span className="text-primary">{t("freeShipping")}</span>
                   ) : (
                     formatPrice(shipping)
                   )}
@@ -290,7 +292,7 @@ export function CartItems({ cart }: CartItemsProps) {
             <Separator />
 
             <div className="flex justify-between text-lg font-semibold">
-              <span>Total</span>
+              <span>{t("total")}</span>
               <span>{formatPrice(total)}</span>
             </div>
 
@@ -307,7 +309,7 @@ export function CartItems({ cart }: CartItemsProps) {
             {/* Checkout Button */}
             <Link href="/checkout" className="block">
               <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-                Proceed to Checkout
+                {t("checkout")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -315,7 +317,7 @@ export function CartItems({ cart }: CartItemsProps) {
             {/* Continue Shopping */}
             <Link href="/" className="block">
               <Button variant="outline" className="w-full">
-                Continue Shopping
+                {t("continueShopping")}
               </Button>
             </Link>
           </CardContent>

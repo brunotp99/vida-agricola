@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { MapPin } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -28,6 +29,7 @@ type Props = {
 }
 
 export function AddressForm({ savedAddresses = [], onSubmit }: Props) {
+  const t = useTranslations("checkout")
   const {
     register,
     handleSubmit,
@@ -50,7 +52,7 @@ export function AddressForm({ savedAddresses = [], onSubmit }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
-          Shipping Address
+          {t("address")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -84,34 +86,34 @@ export function AddressForm({ savedAddresses = [], onSubmit }: Props) {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
+            <Label htmlFor="name">{t("firstName")}</Label>
             <Input id="name" placeholder="João Silva" {...register("name")} />
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="line1">Street Address</Label>
+            <Label htmlFor="line1">{t("addressLine1")}</Label>
             <Input id="line1" placeholder="Rua da Quinta, 123" {...register("line1")} />
             {errors.line1 && <p className="text-xs text-destructive">{errors.line1.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="line2">Apartment, floor, etc. (optional)</Label>
+            <Label htmlFor="line2">{t("addressLine2")}</Label>
             <Input id="line2" placeholder="Apt 4B" {...register("line2")} />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="city">City</Label>
+              <Label htmlFor="city">{t("city")}</Label>
               <Input id="city" placeholder="Lisboa" {...register("city")} />
               {errors.city && <p className="text-xs text-destructive">{errors.city.message}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="state">District (optional)</Label>
+              <Label htmlFor="state">{t("state")}</Label>
               <Input id="state" placeholder="Lisboa" {...register("state")} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="postalCode">Postal Code</Label>
+              <Label htmlFor="postalCode">{t("postalCode")}</Label>
               <Input id="postalCode" placeholder="1000-001" {...register("postalCode")} />
               {errors.postalCode && (
                 <p className="text-xs text-destructive">{errors.postalCode.message}</p>
@@ -120,13 +122,13 @@ export function AddressForm({ savedAddresses = [], onSubmit }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="country">Country</Label>
+            <Label htmlFor="country">{t("country")}</Label>
             <Input id="country" defaultValue="PT" {...register("country")} />
             {errors.country && <p className="text-xs text-destructive">{errors.country.message}</p>}
           </div>
 
           <Button type="submit" className="w-full bg-primary text-primary-foreground">
-            Continue to Shipping Method
+            {t("continueToShipping")}
           </Button>
         </form>
       </CardContent>

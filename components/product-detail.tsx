@@ -26,6 +26,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { useTranslations } from "next-intl"
 import type { SerializedProductDetail, SerializedProductCard } from "@/lib/services/product.service"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
 import { ProductCard } from "@/components/product-card"
@@ -43,6 +44,8 @@ export function ProductDetailComponent({
   relatedProducts,
   canReview = false,
 }: ProductDetailProps) {
+  const t = useTranslations("product")
+  const tCommon = useTranslations("common")
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const { data: session } = authClient.useSession()
@@ -68,7 +71,7 @@ export function ProductDetailComponent({
           <nav className="flex items-center gap-2 text-sm text-muted-foreground">
             <Link href="/" className="flex items-center gap-1 hover:text-foreground">
               <Home className="h-4 w-4" />
-              Home
+              {tCommon("home")}
             </Link>
             {categorySlug && (
               <>
@@ -152,7 +155,7 @@ export function ProductDetailComponent({
                   ))}
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  {avgRating.toFixed(1)} ({product._count.reviews} reviews)
+                  {avgRating.toFixed(1)} ({t("reviews", { count: product._count.reviews })})
                 </span>
               </div>
             </div>
@@ -176,11 +179,11 @@ export function ProductDetailComponent({
                 <>
                   <Check className="h-5 w-5 text-primary" />
                   <span className="font-medium text-primary">
-                    In Stock ({totalStock} available)
+                    {t("inStock", { count: totalStock })}
                   </span>
                 </>
               ) : (
-                <span className="font-medium text-destructive">Out of Stock</span>
+                <span className="font-medium text-destructive">{t("outOfStock")}</span>
               )}
             </div>
 
@@ -211,7 +214,7 @@ export function ProductDetailComponent({
                 disabled={!inStock}
               >
                 <ShoppingCart className="h-5 w-5" />
-                Add to Cart
+                {t("addToCart")}
               </Button>
               <Button variant="outline" size="lg">
                 <Heart className="h-5 w-5" />
@@ -227,22 +230,22 @@ export function ProductDetailComponent({
               className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
               disabled={!inStock}
             >
-              Buy Now
+              {t("buyNow")}
             </Button>
 
             {/* Trust Badges */}
             <div className="grid grid-cols-3 gap-4 rounded-lg border border-border p-4">
               <div className="flex flex-col items-center gap-2 text-center">
                 <Truck className="h-6 w-6 text-primary" />
-                <span className="text-xs text-muted-foreground">Free Shipping</span>
+                <span className="text-xs text-muted-foreground">{t("freeshipping")}</span>
               </div>
               <div className="flex flex-col items-center gap-2 text-center">
                 <Shield className="h-6 w-6 text-primary" />
-                <span className="text-xs text-muted-foreground">Secure Payment</span>
+                <span className="text-xs text-muted-foreground">{t("securePayment")}</span>
               </div>
               <div className="flex flex-col items-center gap-2 text-center">
                 <RotateCcw className="h-6 w-6 text-primary" />
-                <span className="text-xs text-muted-foreground">30-Day Returns</span>
+                <span className="text-xs text-muted-foreground">{t("returns")}</span>
               </div>
             </div>
 
@@ -261,36 +264,36 @@ export function ProductDetailComponent({
                 value="description"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
               >
-                Description
+                {t("description")}
               </TabsTrigger>
               <TabsTrigger
                 value="specifications"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
               >
-                Specifications
+                {t("specifications")}
               </TabsTrigger>
               <TabsTrigger
                 value="reviews"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
               >
-                Reviews ({product._count.reviews})
+                {t("reviews", { count: product._count.reviews })}
               </TabsTrigger>
               <TabsTrigger
                 value="shipping"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
               >
-                Shipping
+                {t("shipping")}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="mt-6">
               <div className="prose max-w-none text-muted-foreground">
                 <p>{product.description}</p>
-                <h3 className="mt-6 text-lg font-semibold text-foreground">Key Features</h3>
+                <h3 className="mt-6 text-lg font-semibold text-foreground">{t("keyFeatures")}</h3>
                 <ul className="mt-4 space-y-2">
-                  <li>Premium quality ingredients sourced from trusted suppliers</li>
-                  <li>Scientifically formulated for optimal results</li>
-                  <li>Easy to use and store</li>
-                  <li>Suitable for both beginners and professionals</li>
+                  <li>{t("feature1")}</li>
+                  <li>{t("feature2")}</li>
+                  <li>{t("feature3")}</li>
+                  <li>{t("feature4")}</li>
                 </ul>
               </div>
             </TabsContent>
@@ -309,7 +312,7 @@ export function ProductDetailComponent({
                     </div>
                   ))
                 ) : (
-                  <p className="px-4 py-3 text-muted-foreground">No specifications available.</p>
+                  <p className="px-4 py-3 text-muted-foreground">{t("noSpecifications")}</p>
                 )}
               </div>
             </TabsContent>
@@ -331,7 +334,7 @@ export function ProductDetailComponent({
                       ))}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {product._count.reviews} reviews
+                      {t("reviews", { count: product._count.reviews })}
                     </p>
                   </div>
                 </div>
@@ -354,7 +357,7 @@ export function ProductDetailComponent({
                         </div>
                         {review.verified && (
                           <Badge variant="outline" className="text-xs">
-                            Verified
+                            {t("verified")}
                           </Badge>
                         )}
                       </div>
@@ -365,7 +368,7 @@ export function ProductDetailComponent({
                     </div>
                   ))
                 ) : (
-                  <p className="text-muted-foreground">No reviews yet. Be the first to review!</p>
+                  <p className="text-muted-foreground">{t("noReviews")}</p>
                 )}
 
                 {/* Review form or CTA */}
@@ -374,15 +377,14 @@ export function ProductDetailComponent({
                     <ReviewForm productId={product.id} productSlug={product.slug} />
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      Purchase this product to leave a review.
+                      {t("purchaseToReview")}
                     </p>
                   )
                 ) : (
                   <p className="text-sm text-muted-foreground">
                     <Link href="/login" className="text-primary underline">
-                      Sign in
-                    </Link>{" "}
-                    to leave a review.
+                      {t("signInToReview")}
+                    </Link>
                   </p>
                 )}
               </div>
@@ -390,16 +392,13 @@ export function ProductDetailComponent({
             <TabsContent value="shipping" className="mt-6">
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  <strong className="text-foreground">Free Shipping:</strong> Orders over $99
-                  qualify for free standard shipping.
+                  <strong className="text-foreground">{t("shippingFree")}</strong>
                 </p>
                 <p>
-                  <strong className="text-foreground">Standard Shipping:</strong> 3-5 business days
-                  - $9.99
+                  <strong className="text-foreground">{t("shippingStandard")}</strong>
                 </p>
                 <p>
-                  <strong className="text-foreground">Express Shipping:</strong> 1-2 business days -
-                  $19.99
+                  <strong className="text-foreground">{t("shippingExpress")}</strong>
                 </p>
               </div>
             </TabsContent>
@@ -408,24 +407,22 @@ export function ProductDetailComponent({
 
         {/* FAQ */}
         <div className="mt-12">
-          <h2 className="mb-6 text-2xl font-bold text-foreground">Frequently Asked Questions</h2>
+          <h2 className="mb-6 text-2xl font-bold text-foreground">{t("faq")}</h2>
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
-              <AccordionTrigger>How long does shipping take?</AccordionTrigger>
+              <AccordionTrigger>{t("faqQ1")}</AccordionTrigger>
               <AccordionContent>
-                Standard shipping typically takes 3-5 business days. Express shipping is available
-                for 1-2 business day delivery.
+                {t("faqA1")}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
-              <AccordionTrigger>What is your return policy?</AccordionTrigger>
+              <AccordionTrigger>{t("faqQ2")}</AccordionTrigger>
               <AccordionContent>
-                We offer a 30-day return policy for all unused products in their original packaging.
-                Please contact our support team to initiate a return.
+                {t("faqA2")}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
-              <AccordionTrigger>Is this product suitable for my animals?</AccordionTrigger>
+              <AccordionTrigger>{t("faqQ3")}</AccordionTrigger>
               <AccordionContent>
                 Please refer to the product specifications and description for detailed information
                 about suitability. If you have specific questions, our customer support team is
@@ -438,7 +435,7 @@ export function ProductDetailComponent({
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <div className="mt-16">
-            <h2 className="mb-6 text-2xl font-bold text-foreground">Related Products</h2>
+            <h2 className="mb-6 text-2xl font-bold text-foreground">{t("relatedProducts")}</h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {relatedProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />

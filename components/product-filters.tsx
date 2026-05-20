@@ -17,6 +17,7 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
+import { useTranslations } from "next-intl"
 
 function useFilterState() {
   const router = useRouter()
@@ -70,20 +71,22 @@ function FilterContent({
   updateFilter,
   clearFilters,
 }: FilterContentProps) {
+  const t = useTranslations("filters")
+
   return (
     <div className="space-y-6">
       {/* Clear Filters */}
       {activeFilterCount > 0 && (
         <Button variant="outline" size="sm" onClick={clearFilters} className="w-full gap-2">
           <X className="h-4 w-4" />
-          Clear All Filters ({activeFilterCount})
+          {t("clearAll", { count: activeFilterCount })}
         </Button>
       )}
 
       {/* Price Range */}
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-semibold text-foreground">
-          Price Range
+          {t("priceRange")}
           <ChevronDown className="h-4 w-4" />
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4 pt-4">
@@ -108,7 +111,7 @@ function FilterContent({
       {/* Rating */}
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-semibold text-foreground">
-          Rating
+          {t("rating")}
           <ChevronDown className="h-4 w-4" />
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-2 pt-2">
@@ -125,7 +128,7 @@ function FilterContent({
                 htmlFor={`rating-${r}`}
                 className="cursor-pointer text-sm text-muted-foreground"
               >
-                {r}+ Stars
+                {t("stars", { count: r })}
               </Label>
             </div>
           ))}
@@ -142,7 +145,7 @@ function FilterContent({
           }}
         />
         <Label htmlFor="in-stock" className="cursor-pointer text-sm font-semibold text-foreground">
-          In Stock Only
+          {t("inStockOnly")}
         </Label>
       </div>
     </div>
@@ -153,13 +156,14 @@ export function ProductFilters() {
   const { priceMin, priceMax, inStock, rating, activeFilterCount, updateFilter, clearFilters } =
     useFilterState()
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const t = useTranslations("filters")
 
   return (
     <>
       {/* Desktop Filters */}
       <aside className="hidden w-64 shrink-0 lg:block">
         <div className="sticky top-24 rounded-lg border border-border bg-card p-6">
-          <h2 className="mb-4 text-lg font-semibold text-foreground">Filters</h2>
+          <h2 className="mb-4 text-lg font-semibold text-foreground">{t("filters")}</h2>
           <FilterContent
             priceMin={priceMin}
             priceMax={priceMax}
@@ -177,7 +181,7 @@ export function ProductFilters() {
         <SheetTrigger asChild className="lg:hidden">
           <Button variant="outline" className="gap-2">
             <SlidersHorizontal className="h-4 w-4" />
-            Filters
+            {t("filters")}
             {activeFilterCount > 0 && (
               <Badge className="ml-1 bg-primary text-primary-foreground">{activeFilterCount}</Badge>
             )}
@@ -185,7 +189,7 @@ export function ProductFilters() {
         </SheetTrigger>
         <SheetContent side="left" className="w-[300px] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
+            <SheetTitle>{t("filters")}</SheetTitle>
           </SheetHeader>
           <div className="mt-6">
             <FilterContent
@@ -209,6 +213,7 @@ export function ProductSortAndView() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const t = useTranslations("filters")
 
   function handleSortChange(value: string) {
     const params = new URLSearchParams(searchParams.toString())
@@ -223,13 +228,13 @@ export function ProductSortAndView() {
     <div className="flex items-center gap-4">
       <Select value={currentSort} onValueChange={handleSortChange}>
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Sort by" />
+          <SelectValue placeholder={t("sortBy")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="newest">Newest</SelectItem>
-          <SelectItem value="price-asc">Price: Low to High</SelectItem>
-          <SelectItem value="price-desc">Price: High to Low</SelectItem>
-          <SelectItem value="popular">Most Popular</SelectItem>
+          <SelectItem value="newest">{t("newest")}</SelectItem>
+          <SelectItem value="price-asc">{t("priceLowHigh")}</SelectItem>
+          <SelectItem value="price-desc">{t("priceHighLow")}</SelectItem>
+          <SelectItem value="popular">{t("mostPopular")}</SelectItem>
         </SelectContent>
       </Select>
 

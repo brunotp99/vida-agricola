@@ -1,13 +1,15 @@
+import { getTranslations } from "next-intl/server"
 import { ProductSection } from "./product-section-client"
 import { ProductService, serializeProductCard } from "@/lib/services/product.service"
 
 export async function BestSellers() {
   const raw = await ProductService.findBestSellers()
   const products = raw.map(serializeProductCard)
+  const t = await getTranslations("sections")
   return (
     <ProductSection
-      title="Best Sellers"
-      subtitle="Our most popular products loved by farmers"
+      title={t("bestSellers")}
+      subtitle={t("bestSellersSubtitle")}
       products={products}
       viewAllHref="/best-sellers"
     />
@@ -17,10 +19,11 @@ export async function BestSellers() {
 export async function NewArrivals() {
   const raw = await ProductService.findNewArrivals()
   const products = raw.map(serializeProductCard)
+  const t = await getTranslations("sections")
   return (
     <ProductSection
-      title="New Arrivals"
-      subtitle="Fresh additions to our product range"
+      title={t("newArrivals")}
+      subtitle={t("newArrivalsSubtitle")}
       products={products}
       viewAllHref="/new-arrivals"
     />
@@ -30,10 +33,11 @@ export async function NewArrivals() {
 export async function FeaturedProducts() {
   const raw = await ProductService.findFeatured()
   const products = raw.map(serializeProductCard)
+  const t = await getTranslations("sections")
   return (
     <ProductSection
-      title="Featured Products"
-      subtitle="Handpicked selection of premium products"
+      title={t("featuredProducts")}
+      subtitle={t("featuredProductsSubtitle")}
       products={products}
       viewAllHref="/featured"
     />

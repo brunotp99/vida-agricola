@@ -1,40 +1,44 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import { Home, ChevronRight, Phone, Mail, MapPin, Clock } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 import { HeaderServer } from "@/components/header-server"
 import { Footer } from "@/components/footer"
 import { ContactForm } from "@/components/contact-form"
 
 export const metadata = { title: "Contact Us | Vida Agrícola" }
 
-const contactInfo = [
-  {
-    icon: Phone,
-    label: "Phone",
-    value: "+351 21 000 0000",
-    href: "tel:+351210000000",
-  },
-  {
-    icon: Mail,
-    label: "Email",
-    value: "suporte@vidaagricola.pt",
-    href: "mailto:suporte@vidaagricola.pt",
-  },
-  {
-    icon: MapPin,
-    label: "Address",
-    value: "Rua da Agricultura, 42\n2670-000 Loures, Portugal",
-    href: null,
-  },
-  {
-    icon: Clock,
-    label: "Hours",
-    value: "Mon – Fri: 9:00 – 18:00\nSat: 9:00 – 13:00",
-    href: null,
-  },
-]
+export default async function ContactPage() {
+  const t = await getTranslations("contact")
+  const tCommon = await getTranslations("common")
 
-export default function ContactPage() {
+  const contactInfo = [
+    {
+      icon: Phone,
+      label: t("phone"),
+      value: "+351 21 000 0000",
+      href: "tel:+351210000000",
+    },
+    {
+      icon: Mail,
+      label: t("emailLabel"),
+      value: "suporte@vidaagricola.pt",
+      href: "mailto:suporte@vidaagricola.pt",
+    },
+    {
+      icon: MapPin,
+      label: t("address"),
+      value: "Rua da Agricultura, 42\n2670-000 Loures, Portugal",
+      href: null,
+    },
+    {
+      icon: Clock,
+      label: t("hours"),
+      value: t("hoursValue"),
+      href: null,
+    },
+  ]
+
   return (
     <div className="flex min-h-screen flex-col">
       <Suspense fallback={null}>
@@ -48,10 +52,10 @@ export default function ContactPage() {
             <nav className="flex items-center gap-2 text-sm text-muted-foreground">
               <Link href="/" className="flex items-center gap-1 hover:text-foreground">
                 <Home className="h-4 w-4" />
-                Home
+                {tCommon("home")}
               </Link>
               <ChevronRight className="h-4 w-4" />
-              <span className="font-medium text-foreground">Contact Us</span>
+              <span className="font-medium text-foreground">{t("title")}</span>
             </nav>
           </div>
         </div>
@@ -59,10 +63,9 @@ export default function ContactPage() {
         {/* Hero */}
         <section className="bg-primary/5 py-16">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="mb-3 text-4xl font-bold text-foreground">Get in Touch</h1>
+            <h1 className="mb-3 text-4xl font-bold text-foreground">{t("getInTouch")}</h1>
             <p className="mx-auto max-w-xl text-muted-foreground">
-              Our team of agricultural specialists is here to help. Send us a message and we will
-              get back to you within one business day.
+              {t("subtitle")}
             </p>
           </div>
         </section>

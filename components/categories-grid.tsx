@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Wheat, Tractor, Heart, HardHat, Leaf, Bird } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 import { CategoryService } from "@/lib/services/category.service"
 
 const iconMap: Record<string, React.ElementType> = {
@@ -13,14 +14,15 @@ const iconMap: Record<string, React.ElementType> = {
 
 export async function CategoriesGrid() {
   const categories = await CategoryService.findFeatured()
+  const t = await getTranslations("categories")
 
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
         <div className="mb-10 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-foreground md:text-4xl">Shop by Category</h2>
+          <h2 className="mb-3 text-3xl font-bold text-foreground md:text-4xl">{t("title")}</h2>
           <p className="mx-auto max-w-2xl text-muted-foreground">
-            Browse our comprehensive range of agricultural products organized by category
+            {t("subtitle")}
           </p>
         </div>
 
@@ -35,7 +37,7 @@ export async function CategoriesGrid() {
                   </div>
                   <h3 className="mb-1 font-semibold text-foreground">{category.name}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {category.children.length} subcategories
+                    {t("subcategories", { count: category.children.length })}
                   </p>
                 </div>
               </Link>

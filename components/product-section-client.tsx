@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useTranslations } from "next-intl"
 import { ProductCard } from "./product-card"
 import type { SerializedProductCard } from "@/lib/services/product.service"
 
@@ -21,6 +22,8 @@ export function ProductSection({
   viewAllHref,
   columns = 4,
 }: ProductSectionProps) {
+  const t = useTranslations("common")
+
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
@@ -32,7 +35,7 @@ export function ProductSection({
           {viewAllHref && (
             <Link href={viewAllHref}>
               <Button variant="ghost" className="gap-2 text-primary hover:text-primary/80">
-                View All
+                {t("viewAll")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
+import { useTranslations } from "next-intl"
 import { authClient } from "@/lib/auth-client"
 import { addToCartAction } from "@/lib/actions/cart"
 import { toggleWishlistAction } from "@/lib/actions/wishlist"
@@ -29,6 +30,7 @@ export function ProductCard({
   isWishlisted = false,
   imagePriority = false,
 }: ProductCardProps) {
+  const t = useTranslations("product")
   const price = product.price
   const compareAtPrice = product.compareAtPrice
   const hasDiscount = compareAtPrice !== null && compareAtPrice > price
@@ -49,9 +51,9 @@ export function ProductCard({
     startCartTransition(async () => {
       const result = await addToCartAction(product.id)
       if (result.success) {
-        toast({ title: "Added to cart", description: product.name })
+        toast({ title: t("addedToCart"), description: product.name })
       } else {
-        toast({ title: "Error", description: result.error, variant: "destructive" })
+        toast({ title: t("addedToCart"), description: result.error, variant: "destructive" })
       }
     })
   }
@@ -66,7 +68,7 @@ export function ProductCard({
       const result = await toggleWishlistAction(product.id)
       if (result.success) {
         toast({
-          title: result.wishlisted ? "Added to wishlist" : "Removed from wishlist",
+          title: result.wishlisted ? t("addToWishlist") : t("removeFromWishlist"),
           description: product.name,
         })
       } else {
@@ -107,7 +109,7 @@ export function ProductCard({
             onClick={handleToggleWishlist}
             disabled={isPendingWishlist}
             className="h-8 w-8 rounded-full bg-card shadow-md hover:bg-primary hover:text-primary-foreground"
-            aria-label={optimisticWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            aria-label={optimisticWishlisted ? t("removeFromWishlist") : t("addToWishlist")}
           >
             <Heart
               className={`h-4 w-4 transition-colors ${optimisticWishlisted ? "fill-destructive text-destructive" : ""}`}
@@ -118,7 +120,7 @@ export function ProductCard({
               size="icon"
               variant="secondary"
               className="h-8 w-8 rounded-full bg-card shadow-md hover:bg-primary hover:text-primary-foreground"
-              aria-label="View product"
+              aria-label={t("viewProduct")}
             >
               <Eye className="h-4 w-4" />
             </Button>
@@ -189,7 +191,7 @@ export function ProductCard({
             ) : (
               <ShoppingCart className="h-4 w-4" />
             )}
-            {isPendingCart ? "Adding..." : "Add to Cart"}
+            {isPendingCart ? t("adding") : t("addToCart")}
           </Button>
         </CardContent>
       </Card>

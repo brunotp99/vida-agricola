@@ -33,24 +33,18 @@ import {
 import { MegaMenu } from "./mega-menu"
 import { MobileMenu } from "./mobile-menu"
 import { AutocompleteDropdown } from "./search/autocomplete-dropdown"
+import { LanguageSwitcher } from "./language-switcher"
 import { authClient } from "@/lib/auth-client"
+import { useTranslations } from "next-intl"
 import type { CategoryTree } from "@/lib/services/category.service"
-
-const mainNavItems = [
-  { label: "Home", href: "/" },
-  { label: "Products", href: "/products", hasMegaMenu: true },
-  { label: "Brands", href: "/brands" },
-  { label: "Deals", href: "/deals", highlight: true },
-  { label: "Blog", href: "/blog" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-]
 
 interface HeaderProps {
   categories?: CategoryTree[]
 }
 
 export function Header({ categories = [] }: HeaderProps) {
+  const t = useTranslations("header")
+  const tNav = useTranslations("navigation")
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
@@ -61,6 +55,16 @@ export function Header({ categories = [] }: HeaderProps) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
   const { data: session, isPending } = authClient.useSession()
+
+  const mainNavItems = [
+    { labelKey: "home", href: "/" },
+    { labelKey: "products", href: "/products", hasMegaMenu: true },
+    { labelKey: "brands", href: "/brands" },
+    { labelKey: "deals", href: "/deals", highlight: true },
+    { labelKey: "blog", href: "/blog" },
+    { labelKey: "about", href: "/about" },
+    { labelKey: "contact", href: "/contact" },
+  ]
 
   const fetchSuggestions = useCallback(async (q: string) => {
     if (!q.trim()) {
@@ -148,19 +152,19 @@ export function Header({ categories = [] }: HeaderProps) {
                 className="flex items-center gap-2 transition-colors hover:text-primary"
               >
                 <Phone className="h-3.5 w-3.5" />
-                <span>+1 (800) 123-4567</span>
+                <span>{t("phone")}</span>
               </a>
               <Link
                 href="/stores"
                 className="flex items-center gap-2 transition-colors hover:text-primary"
               >
                 <MapPin className="h-3.5 w-3.5" />
-                <span>Find a Store</span>
+                <span>{t("findStore")}</span>
               </Link>
             </div>
             <div className="flex w-full items-center justify-center gap-2 md:w-auto md:justify-end">
               <Truck className="h-3.5 w-3.5" />
-              <span>Free shipping on orders over $99</span>
+              <span>{t("freeShippingBanner")}</span>
             </div>
           </div>
         </div>
@@ -175,11 +179,11 @@ export function Header({ categories = [] }: HeaderProps) {
               <SheetTrigger asChild className="lg:hidden">
                 <Button variant="ghost" size="icon" className="shrink-0">
                   <Menu className="h-6 w-6" />
-                  <span className="sr-only">Open menu</span>
+                  <span className="sr-only">{tNav("openMenu")}</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[320px] p-0">
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <SheetTitle className="sr-only">{tNav("menu")}</SheetTitle>
                 <MobileMenu onClose={() => setMobileMenuOpen(false)} categories={categories} />
               </SheetContent>
             </Sheet>
@@ -205,7 +209,7 @@ export function Header({ categories = [] }: HeaderProps) {
                 <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search products, brands..."
+                  placeholder={t("searchPlaceholder")}
                   value={searchQuery}
                   onChange={handleSearchChange}
                   onKeyDown={handleSearchKeyDown}
@@ -233,8 +237,11 @@ export function Header({ categories = [] }: HeaderProps) {
                 aria-expanded={mobileSearchOpen}
               >
                 <Search className="h-5 w-5" />
-                <span className="sr-only">Search</span>
+                <span className="sr-only">{t("searchButton")}</span>
               </Button>
+
+              {/* Language Switcher */}
+              <LanguageSwitcher />
 
               {/* Account */}
               {mounted && !isPending && (
@@ -263,19 +270,19 @@ export function Header({ categories = [] }: HeaderProps) {
                         <DropdownMenuItem asChild>
                           <Link href="/account" className="flex items-center gap-2">
                             <User className="h-4 w-4" />
-                            My Account
+                            {t("myAccount")}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href="/account/orders" className="flex items-center gap-2">
                             <Package className="h-4 w-4" />
-                            Orders
+                            {t("orders")}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href="/account" className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
-                            Settings
+                            {t("settings")}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
@@ -284,7 +291,7 @@ export function Header({ categories = [] }: HeaderProps) {
                           className="flex items-center gap-2 text-destructive focus:text-destructive"
                         >
                           <LogOut className="h-4 w-4" />
-                          Sign Out
+                          {t("signOut")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -292,7 +299,7 @@ export function Header({ categories = [] }: HeaderProps) {
                     <Link href="/login" className="hidden sm:block">
                       <Button variant="ghost" size="sm" className="gap-2">
                         <User className="h-4 w-4" />
-                        Sign In
+                        {t("signIn")}
                       </Button>
                     </Link>
                   )}
@@ -303,7 +310,7 @@ export function Header({ categories = [] }: HeaderProps) {
               <Link href="/wishlist" className="relative hidden sm:block">
                 <Button variant="ghost" size="icon">
                   <Heart className="h-5 w-5" />
-                  <span className="sr-only">Wishlist</span>
+                  <span className="sr-only">{t("wishlist")}</span>
                 </Button>
                 {wishlistCount > 0 && (
                   <Badge className="absolute -right-0.5 -top-0.5 h-5 w-5 rounded-full bg-secondary p-0 text-[10px] font-semibold text-secondary-foreground">
@@ -316,7 +323,7 @@ export function Header({ categories = [] }: HeaderProps) {
               <Link href="/cart" className="relative">
                 <Button variant="ghost" size="icon" className="relative">
                   <ShoppingCart className="h-5 w-5" />
-                  <span className="sr-only">Cart</span>
+                  <span className="sr-only">{t("cart")}</span>
                 </Button>
                 {cartItemCount > 0 && (
                   <Badge className="absolute -right-0.5 -top-0.5 h-5 w-5 rounded-full bg-primary p-0 text-[10px] font-semibold text-primary-foreground">
@@ -336,7 +343,7 @@ export function Header({ categories = [] }: HeaderProps) {
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search products, brands..."
+              placeholder={t("searchPlaceholder")}
               value={searchQuery}
               onChange={handleSearchChange}
               onKeyDown={(e) => {
@@ -366,7 +373,7 @@ export function Header({ categories = [] }: HeaderProps) {
         <div className="container relative mx-auto px-4" onMouseLeave={handleMouseLeave}>
           <ul className="flex items-center">
             {mainNavItems.map((item) => (
-              <li key={item.label} onMouseEnter={item.hasMegaMenu ? handleMouseEnter : undefined}>
+              <li key={item.labelKey} onMouseEnter={item.hasMegaMenu ? handleMouseEnter : undefined}>
                 <Link
                   href={item.href}
                   className={`relative flex items-center gap-1.5 px-5 py-4 text-sm font-medium transition-colors ${
@@ -375,7 +382,7 @@ export function Header({ categories = [] }: HeaderProps) {
                       : "text-foreground hover:text-primary"
                   }`}
                 >
-                  {item.label}
+                  {tNav(item.labelKey as Parameters<typeof tNav>[0])}
                   {item.hasMegaMenu && (
                     <svg
                       className={`h-3.5 w-3.5 transition-transform duration-200 ${megaMenuOpen ? "rotate-180" : ""}`}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Clock, Flame } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { ProductCard } from "./product-card"
 import type { SerializedProductCard } from "@/lib/services/product.service"
 
@@ -10,6 +11,7 @@ interface FlashDealsClientProps {
 }
 
 export function FlashDealsClient({ products }: FlashDealsClientProps) {
+  const t = useTranslations("flashDeals")
   const [timeLeft, setTimeLeft] = useState({
     hours: 23,
     minutes: 45,
@@ -47,8 +49,8 @@ export function FlashDealsClient({ products }: FlashDealsClientProps) {
           <div className="flex items-center gap-3 text-white">
             <Flame className="h-8 w-8" />
             <div>
-              <h2 className="text-3xl font-bold md:text-4xl">Flash Deals</h2>
-              <p className="text-white/80">Limited time offers - Don&apos;t miss out!</p>
+              <h2 className="text-3xl font-bold md:text-4xl">{t("title")}</h2>
+              <p className="text-white/80">{t("subtitle")}</p>
             </div>
           </div>
 
@@ -60,21 +62,21 @@ export function FlashDealsClient({ products }: FlashDealsClientProps) {
                 <span className="text-2xl font-bold text-white">
                   {String(timeLeft.hours).padStart(2, "0")}
                 </span>
-                <p className="text-xs text-white/80">Hours</p>
+                <p className="text-xs text-white/80">{t("hours")}</p>
               </div>
               <span className="text-2xl font-bold text-white">:</span>
               <div className="rounded-lg bg-white/20 px-4 py-2 text-center backdrop-blur-sm">
                 <span className="text-2xl font-bold text-white">
                   {String(timeLeft.minutes).padStart(2, "0")}
                 </span>
-                <p className="text-xs text-white/80">Mins</p>
+                <p className="text-xs text-white/80">{t("mins")}</p>
               </div>
               <span className="text-2xl font-bold text-white">:</span>
               <div className="rounded-lg bg-white/20 px-4 py-2 text-center backdrop-blur-sm">
                 <span className="text-2xl font-bold text-white">
                   {String(timeLeft.seconds).padStart(2, "0")}
                 </span>
-                <p className="text-xs text-white/80">Secs</p>
+                <p className="text-xs text-white/80">{t("secs")}</p>
               </div>
             </div>
           </div>
