@@ -42,7 +42,10 @@ async function sendOrderShipped(
 async function sendPasswordReset(email: string, token: string) {
   const resend = getResend()
   if (!resend) return
-  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/reset-password?token=${token}`
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
+  const resetUrl = `${baseUrl}/reset-password?token=${token}`
   await resend.emails.send({
     from: FROM,
     to: email,

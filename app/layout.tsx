@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
+import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
 const geistSans = Geist({
@@ -52,6 +53,7 @@ export default async function RootLayout({
       <body className="font-sans antialiased min-h-screen">
         <NextIntlClientProvider messages={messages}>
           {children}
+          <Toaster />
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </NextIntlClientProvider>
       </body>

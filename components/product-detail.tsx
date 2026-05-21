@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import Image from "next/image"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Star,
   Heart,
@@ -30,6 +31,8 @@ import {
 } from "@/components/ui/accordion"
 import { useTranslations } from "next-intl"
 import type { SerializedProductDetail, SerializedProductCard } from "@/lib/services/product.service"
+import { addToCartAction } from "@/lib/actions/cart"
+import { useToast } from "@/hooks/use-toast"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
 import { ProductCard } from "@/components/product-card"
 import { ReviewForm } from "@/components/account/review-form"
@@ -48,9 +51,37 @@ export function ProductDetailComponent({
 }: ProductDetailProps) {
   const t = useTranslations("product")
   const tCommon = useTranslations("common")
+  const router = useRouter()
+  const { toast } = useToast()
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
+  const [isPendingCart, startCartTransition] = useTransition()
+  const [isPendingBuyNow, startBuyNowTransition] = useTransition()
   const { data: session } = authClient.useSession()
+
+  function handleAddToCart() {
+    startCartTransition(async () => {
+      const result = await addToCartAction(product.id, undefined, quantity)
+      if (result.success) {
+        window.dispatchEvent(new Event("cart-updated"))
+        toast({ title: t("addedToCart"), description: product.name })
+      } else {
+        toast({ title: t("addedToCart"), description: result.error, variant: "destructive" })
+      }
+    })
+  }
+
+  function handleBuyNow() {
+    startBuyNowTransition(async () => {
+      const result = await addToCartAction(product.id, undefined, quantity)
+      if (result.success) {
+        window.dispatchEvent(new Event("cart-updated"))
+        router.push("/checkout")
+      } else {
+        toast({ title: t("addedToCart"), description: result.error, variant: "destructive" })
+      }
+    })
+  }
 
   const price = product.price
   const compareAtPrice = product.compareAtPrice
@@ -217,10 +248,11 @@ export function ProductDetailComponent({
               <Button
                 size="lg"
                 className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                disabled={!inStock}
+                disabled={!inStock || isPendingCart}
+                onClick={handleAddToCart}
               >
                 <ShoppingCart className="h-5 w-5" />
-                {t("addToCart")}
+                {isPendingCart ? t("adding") : t("addToCart")}
               </Button>
               <Button variant="outline" size="lg">
                 <Heart className="h-5 w-5" />
@@ -234,9 +266,10 @@ export function ProductDetailComponent({
             <Button
               size="lg"
               className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
-              disabled={!inStock}
+              disabled={!inStock || isPendingBuyNow}
+              onClick={handleBuyNow}
             >
-              {t("buyNow")}
+              {isPendingBuyNow ? t("adding") : t("buyNow")}
             </Button>
 
             {/* Trust Badges */}

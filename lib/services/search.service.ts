@@ -34,7 +34,7 @@ async function search(input: SearchInput) {
   const rawResults = await prisma.$queryRaw<RawProduct[]>`
     SELECT p.id, p.name, p.slug, ts_rank(p."searchVector", q) AS rank
     FROM "Product" p,
-         plainto_tsquery('portuguese', ${sanitized}) q
+         plainto_tsquery('english', ${sanitized}) q
     WHERE p."searchVector" @@ q
       AND p.status = 'active'
       ${input.priceMin !== undefined ? Prisma.sql`AND p.price >= ${input.priceMin}` : Prisma.empty}

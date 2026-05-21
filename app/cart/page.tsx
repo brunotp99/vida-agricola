@@ -17,11 +17,32 @@ export default async function CartPage() {
   const cookieStore = await cookies()
   const sessionId = cookieStore.get("guest-session-id")?.value
 
-  const cart = userId
+  const rawCart = userId
     ? await CartService.getCartWithItems({ userId })
     : sessionId
       ? await CartService.getCartWithItems({ sessionId })
       : null
+
+  const cart = rawCart
+    ? {
+        ...rawCart,
+        subtotal: Number(rawCart.subtotal),
+        items: rawCart.items.map((item) => ({
+          ...item,
+          product: {
+            ...item.product,
+            price: Number(item.product.price),
+            compareAtPrice:
+              item.product.compareAtPrice != null
+                ? Number(item.product.compareAtPrice)
+                : null,
+          },
+          variant: item.variant
+            ? { ...item.variant, price: Number(item.variant.price) }
+            : null,
+        })),
+      }
+    : null
 
   return (
     <div className="flex min-h-screen flex-col">

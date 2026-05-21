@@ -115,8 +115,27 @@ export function Header({ categories = [] }: HeaderProps) {
 
   const pathname = usePathname()
 
-  const cartItemCount = 0
+  const [cartItemCount, setCartItemCount] = useState(0)
   const wishlistCount = 0
+
+  const fetchCartCount = useCallback(async () => {
+    try {
+      const res = await fetch("/api/cart/count")
+      const data = await res.json()
+      setCartItemCount(data.count ?? 0)
+    } catch {
+      // ignore
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchCartCount()
+  }, [fetchCartCount, pathname])
+
+  useEffect(() => {
+    window.addEventListener("cart-updated", fetchCartCount)
+    return () => window.removeEventListener("cart-updated", fetchCartCount)
+  }, [fetchCartCount])
 
   const handleMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current)

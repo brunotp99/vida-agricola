@@ -51,6 +51,7 @@ export function ProductCard({
     startCartTransition(async () => {
       const result = await addToCartAction(product.id)
       if (result.success) {
+        window.dispatchEvent(new Event("cart-updated"))
         toast({ title: t("addedToCart"), description: product.name })
       } else {
         toast({ title: t("addedToCart"), description: result.error, variant: "destructive" })
